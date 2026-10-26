@@ -9,10 +9,12 @@ A build log: Turning retired enterprise hardware into a working hybrid-cloud AI 
 **Day 1: Inventory and Safety.** Every device identified from its labels and checked against manufacturer support dates.
 ## The lab
 
-| Firewall and router between lab zones | Palo Alto PA-220 | 
-| Lab switch | Cisco Catalyst 2960G-24TC-L | 
-| Virtualization server | Dell PowerEdge R730 (Proxmox VE planned) | 
-| Monitoring / jump box | Raspberry Pi 4 | 
+| Role | Device | Status |
+| --- | --- | --- |
+| Firewall and router between lab zones | Palo Alto PA-220 | Inventoried |
+| Lab switch | Cisco Catalyst 2960G-24TC-L | Inventoried |
+| Virtualization server | Dell PowerEdge R730 (Proxmox VE planned) | Inventoried |
+| Monitoring / jump box | Raspberry Pi 4 | Inventoried |
 | Cloud | AWS | Planned |
 
 Shelved as spares: a second 2960G, a Catalyst 3560G and a Cisco ISR 4331. The lab runs only what earns its place.
