@@ -1,6 +1,6 @@
 # Hardware inventory
 
-Last updated: October 26, 2026 (Day 1). Public version: serial numbers
+Last updated: October 26, 2026 (Day 1). 
 ## Active lab equipment
 
 | Tag | Device | Model (from label) | Power input (from label) | Support status | Role |
