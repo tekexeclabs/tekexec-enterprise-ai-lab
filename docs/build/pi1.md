@@ -69,7 +69,14 @@ A read-only check on Day 5 showed the Day 4 card held the full desktop Raspberry
 **Verified:** `multi-user.target`; no `lightdm` package; 15 services running; hostname `pi1`; `eth0` at 10.20.10.10/24; `wlan0` down; Debian 13.7 (trixie).
 
 **Lesson:** check what was installed, not just what was intended. One command (`systemctl get-default`) would have caught it on Day 4.
+## Day 5 hardening: SSH keys only
 
+**What changed:** pi1 now accepts SSH logins only with a key. Password login over SSH is off, and direct root login is off. `sudo` still requires the account password.
+
+1. Generated an ed25519 key pair on the admin laptop (`ssh-keygen -t ed25519`), protected with a passphrase. The private key never leaves the laptop.
+2. Appended the public key to `~/.ssh/authorized_keys` on pi1 (folder 700, file 600). Windows has no `ssh-copy-id`, so the key was piped over ssh.
+3. Tested key login with passwords switched off before changing anything (`ssh -o PasswordAuthentication=no`); the Pi's log showed `Accepted publickey`.
+4. Found that `/etc/ssh/sshd_config.d/50-cloud-init.conf`, written at imaging, sets `PasswordAuthentication yes`. sshd uses the first value it reads, and the files load alphabetically, so we added `10-tekexec.conf`:
 ## Next
 
 Linux basics (users, updates, permissions), then hardening: SSH keys, and turning off password login.
