@@ -51,6 +51,14 @@ Note: the previous owner's VLAN names and VTP domain are recorded in our private
 | PI1 | Re-imaged; edited `network-config` in place and saved with plain Save | First boot applied 10.20.10.10/24 on `eth0` | PASS |
 | PI1 | SSH login from the laptop over the direct cable | Logged in; hostname `pi1`; `wlan0` down with no address; Debian GNU/Linux 13.7 (trixie), kernel 6.18.50, aarch64. [pi1.md](../build/pi1.md) | **PASS** |
 
+## Day 5: Thu Oct 29, 2026
+
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| PI1 | Read-only Linux basics: filesystem, users and groups, permissions, sudo, services, logs | sudo requires a password; one admin user; `/etc/shadow` protected; 19 services running, including a desktop login screen | PASS; nothing changed |
+| PI1 | `systemctl get-default`; `dpkg -l lightdm` | `graphical.target`; desktop packages installed | Finding: Day 4 installed the desktop image, not Lite |
+| PI1 | Re-imaged with Raspberry Pi OS Lite (64-bit); new admin user; same static address method | First boot applied 10.20.10.10/24; SSH login OK | Done |
+| PI1 | Verified the image | `multi-user.target`; no desktop packages; 15 services running; Debian 13.7 (trixie) | **PASS: Lite confirmed** |
 ## SRV1 hardware (as found)
 
 | Component | Value |
