@@ -60,6 +60,15 @@ The Pi has never been on the home network. With no gateway and no Wi-Fi, it can 
 
 - On first boot, the Pi's activity LED stayed dark until the microSD card was reseated firmly.
 - Windows `ssh` couldn't resolve `pi1.local` even when `ping` could. Using the address directly avoids the problem.
+## Day 5 correction: the Day 4 image was the desktop version
+
+A read-only check on Day 5 showed the Day 4 card held the full desktop Raspberry Pi OS, not Lite: `systemctl get-default` returned `graphical.target`, and the `lightdm` package (a graphical login screen) was installed with 19 services running. The likely cause is that Imager's top OS choice is the desktop version; Lite is under "Raspberry Pi OS (other)".
+
+**Fix (Day 5):** re-imaged with Raspberry Pi OS Lite (64-bit), a new admin username, and the same `network-config` method.
+
+**Verified:** `multi-user.target`; no `lightdm` package; 15 services running; hostname `pi1`; `eth0` at 10.20.10.10/24; `wlan0` down; Debian 13.7 (trixie).
+
+**Lesson:** check what was installed, not just what was intended. One command (`systemctl get-default`) would have caught it on Day 4.
 
 ## Next
 
