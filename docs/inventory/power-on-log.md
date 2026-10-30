@@ -59,6 +59,11 @@ Note: the previous owner's VLAN names and VTP domain are recorded in our private
 | PI1 | `systemctl get-default`; `dpkg -l lightdm` | `graphical.target`; desktop packages installed | Finding: Day 4 installed the desktop image, not Lite |
 | PI1 | Re-imaged with Raspberry Pi OS Lite (64-bit); new admin user; same static address method | First boot applied 10.20.10.10/24; SSH login OK | Done |
 | PI1 | Verified the image | `multi-user.target`; no desktop packages; 15 services running; Debian 13.7 (trixie) | **PASS: Lite confirmed** |
+| PI1 | Generated an ed25519 key pair on the laptop (with passphrase); installed the public key on pi1 | Key login worked with password login switched off; log shows `Accepted publickey` | PASS |
+| PI1 | Added `/etc/ssh/sshd_config.d/10-tekexec.conf`: password login, keyboard-interactive login and root login off; checked with `sshd -t` and `sshd -T`; reloaded ssh | Password attempt: `Permission denied (publickey)` | **PASS: key-only SSH** |
+| SW1 | Hardened over the console: hostname, enable secret, local admin user, SSH v2 only on the VTY lines, HTTP/HTTPS servers off, management address 10.20.10.2 in VLAN 10 | Console login and enable secret tested before saving | PASS |
+| SW1 | Ports 1–2 set to access VLAN 10 (laptop, pi1); ports 3–24 moved to VLAN 999 and shut down; laptop and pi1 cabled to SW1 | Vlan10 up; laptop reaches pi1 through the switch | PASS |
+| PI1 / SW1 | SSH from pi1 to SW1. The switch only offers older encryption, so it is allowed for SW1 alone in pi1's SSH settings (`Host sw1`) | `ssh sw1` reaches the switch; `show users` shows the session from pi1 | **PASS: laptop → pi1 → SW1** |
 ## SRV1 hardware (as found)
 
 | Component | Value |
