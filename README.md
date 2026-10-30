@@ -6,12 +6,13 @@ A build log: Turning retired enterprise hardware into a working hybrid-cloud AI 
 
 ## Current Status
 
-**Day 4: Network foundations.**
+**Day 5: The jump box is live.**
 
 - Day 1: every device identified from its labels and checked against manufacturer support dates.
 - Day 2: fixed a server memory fault by reseating one DIMM.
 - Day 3: reached the switch over its console and cleared a previous owner's leftover VLANs.
 - Day 4: wrote the lab's IP plan, created its VLANs on the switch, and brought up a Raspberry Pi on a fixed lab address, isolated from the home network.
+- Day 5: rebuilt the Pi as a lean server (it had been imaged with the desktop version), switched it to SSH-key-only logins, hardened the switch, and connected the laptop and Pi through it. Admin access now runs laptop → Pi → switch, all inside the management VLAN.
 
 Full record: [power-on log](docs/inventory/power-on-log.md).
 
