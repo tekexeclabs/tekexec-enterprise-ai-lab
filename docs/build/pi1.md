@@ -12,7 +12,7 @@ Built: Day 4 (Wed Oct 28, 2026)
 | Address | 10.20.10.10/24 on `eth0`, static, no gateway |
 | Wi-Fi | Not configured; `wlan0` is down with no address |
 | Remote access | SSH with password (moving to SSH keys during hardening) |
-| Connected to | The admin laptop only, by a direct Ethernet cable (laptop at 10.20.10.200/24, no gateway) |
+| Connected to | SW1 port Gi0/2 (VLAN 10); reached from the admin laptop through the switch |
 
 The Pi has never been on the home network. With no gateway and no Wi-Fi, it can reach only the laptop at the other end of the cable.
 
