@@ -82,3 +82,12 @@ Note: a credential-handling mistake during SW1 hardening exposed its passwords. 
 | FW1 | Set a fresh admin password, then `commit` | `show config diff` empty afterwards | **PASS** |
 | FW1 | `show running security-policy`, `show interface all` (read-only) | Factory-default rules only; just ethernet1/1–1/2 configured, both down | PASS: no reset needed |
 | FW1 | `request shutdown system`, then power removed | "System halted" | PASS |
+
+
+## Day 7: Sat Oct 31, 2026
+
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| SW1 | Checked supported hash types (`enable algorithm-type ?`) | scrypt available; Day 5 had assumed type 5 (MD5) was the maximum | Finding |
+| SW1 | Rotated enable secret and local user password (exposed Oct 29), hashed as type 9 (scrypt); PuTTY logging paused while typing secrets | Enable and console login tested with the new credentials before saving; `copy running-config startup-config` [OK] | **PASS** |
+| GitHub | Audited the repository: file paths, links, and a scan for hashes, usernames, home addresses, serials and fingerprints | No private details found; fixed a filename case mismatch, stale notes and diagram labels | PASS |
