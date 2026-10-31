@@ -55,28 +55,30 @@ Note: the previous owner's VLAN names and VTP domain are recorded in our private
 
 | Device | Action | Observed | Result |
 | --- | --- | --- | --- |
-| PI1 | Read-only Linux basics: filesystem, users and groups, permissions, sudo, services, logs | sudo requires a password; one admin user; `/etc/shadow` protected; 19 services running, including a desktop login screen | PASS; nothing changed |
-| PI1 | `systemctl get-default`; `dpkg -l lightdm` | `graphical.target`; desktop packages installed | Finding: Day 4 installed the desktop image, not Lite |
-| PI1 | Re-imaged with Raspberry Pi OS Lite (64-bit); new admin user; same static address method | First boot applied 10.20.10.10/24; SSH login OK | Done |
-| PI1 | Verified the image | `multi-user.target`; no desktop packages; 15 services running; Debian 13.7 (trixie) | **PASS: Lite confirmed** |
-| PI1 | Generated an ed25519 key pair on the laptop (with passphrase); installed the public key on pi1 | Key login worked with password login switched off; log shows `Accepted publickey` | PASS |
-| PI1 | Added `/etc/ssh/sshd_config.d/10-tekexec.conf`: password login, keyboard-interactive login and root login off; checked with `sshd -t` and `sshd -T`; reloaded ssh | Password attempt: `Permission denied (publickey)` | **PASS: key-only SSH** |
-| SW1 | Hardened over the console: hostname, enable secret, local admin user, SSH v2 only on the VTY lines, HTTP/HTTPS servers off, management address 10.20.10.2 in VLAN 10 | Console login and enable secret tested before saving | PASS |
-| SW1 | Ports 1–2 set to access VLAN 10 (laptop, pi1); ports 3–24 moved to VLAN 999 and shut down; laptop and pi1 cabled to SW1 | Vlan10 up; laptop reaches pi1 through the switch | PASS |
-| PI1 / SW1 | SSH from pi1 to SW1. The switch only offers older encryption, so it is allowed for SW1 alone in pi1's SSH settings (`Host sw1`) | `ssh sw1` reaches the switch; `show users` shows the session from pi1 | **PASS: laptop → pi1 → SW1** |
-## SRV1 hardware (as found)
+| PI1 | Linux basics (read-only): checked the running system | Desktop packages present: the Day 4 card was the desktop image, not Lite | Finding |
+| PI1 | Re-imaged with Raspberry Pi OS Lite (64-bit); same static address method | Debian 13.7 (trixie), multi-user target, no desktop packages | PASS |
+| PI1 | Created a laptop ed25519 key (passphrase-protected); installed it in authorized_keys (700/600) | Key login works | PASS |
+| PI1 | Drop-in 10-tekexec.conf: password, keyboard-interactive and root login off | `sshd -T` confirms all three; password-only login refused with `Permission denied (publickey)` | **PASS** |
+| SW1 | Hardening: hostname, local admin user, enable secret, RSA 2048 keys, SSH v2 only, console and VTY login required, idle timeouts, built-in web servers off, time zone set | Details: [sw1-hardening.md](../network/sw1-hardening.md) | PASS |
+| SW1 | Management address 10.20.10.2/24 on Vlan10; Vlan1 shut down | Vlan10 up/up | PASS |
+| SW1 | Gi0/1 (laptop) and Gi0/2 (pi1): access VLAN 10, portfast. Gi0/3–24: VLAN 999, shut down | Only the two used ports are active | PASS |
+| LAPTOP, PI1 | Cabled into SW1 Gi0/1 and Gi0/2 | Laptop reaches pi1 by SSH through the switch | PASS |
+| PI1 | `~/.ssh/config` entry allowing SW1's older SSH algorithms for SW1 only | `ssh sw1` from pi1 reaches the switch | **PASS: jump box working** |
+| SW1 | `copy running-config startup-config` | `[OK]` | PASS |
 
-| Component | Value |
-| --- | --- |
-| Processors | 2 x Intel Xeon E5-2683 v4 @ 2.10 GHz, 16 cores each (32 cores / 64 threads) |
-| Memory | 128 GB ECC DDR4-2400 registered |
-| BIOS | 2.19.0 |
-| Storage | 2 x 1.92 TB SATA SSD (bays 0–1) |
-| Network | Broadcom 5720, 4 x 1 GbE onboard; dedicated iDRAC port |
-| Power | 2 x 750 W, redundant |
-| Virtualization Technology | Enabled |
+Note: a credential-handling mistake during SW1 hardening exposed its passwords. Risk accepted while SW1 was isolated; both passwords were rotated at the start of Day 7.
 
-## Pending
+## Day 6: Fri Oct 30, 2026
 
-- FW1 (PA-220): not powered yet. Decision: use the 12 V adapter we already have instead of waiting for the genuine Palo Alto adapter, after checking its output and polarity against Palo Alto's hardware reference
-- SW1 hardening (planned): hostname, enable secret, SSH, turn off the built-in web server, set the clock
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| FW1 (PA-220) | Adapter check, unpowered: compared a third-party 12 V adapter with Palo Alto's specs and FW1's label | 12 V DC, 3 A (FW1 needs 1.75 A), center-positive, threaded lock fits PWR 1; not Palo Alto's part | HOLD |
+| FW1 | First power-on on PWR 1 (before the planned multimeter polarity test) | PWR LED green; no smell, sound or heat | PASS: supervised use only |
+| FW1 | Console: RJ-45 CONSOLE, 9600 baud 8N1, no flow control; power-cycled to capture the full boot | Bootloader → PAN-OS; filesystem checks and self-tests passed; login prompt reached | PASS |
+| FW1 | Waited for the STAT LED | Yellow (booting) for about 25 minutes, then green | PASS |
+| FW1 | First login with factory credentials; forced password change | Logged in | PASS |
+| FW1 | Read-only inventory: system info, licenses, environmentals | PAN-OS 9.1.15-h1; no licenses; factory-default management settings; all environmental alarms false; input rail 12.00 V | PASS. Details: [fw1.md](../build/fw1.md) |
+| FW1 | `show config diff` (read-only) | New password pending, not yet committed | Finding |
+| FW1 | Set a fresh admin password, then `commit` | `show config diff` empty afterwards | **PASS** |
+| FW1 | `show running security-policy`, `show interface all` (read-only) | Factory-default rules only; just ethernet1/1–1/2 configured, both down | PASS: no reset needed |
+| FW1 | `request shutdown system`, then power removed | "System halted" | PASS |
