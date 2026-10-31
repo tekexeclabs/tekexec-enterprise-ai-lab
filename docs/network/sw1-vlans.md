@@ -73,11 +73,18 @@ Save: `copy running-config startup-config` returned `[OK]`. `show startup-config
 VLANs 1002–1005 are built in for legacy network types (FDDI, Token Ring) that this switch doesn't support ("act/unsup"), and they can't be deleted.
 
 ## Current state and known gaps
+> Superseded on Day 5: ports were assigned and the switch was hardened. See [SW1 hardening notes](sw1-hardening.md) for the current state.
 
 - All 24 ports are still in VLAN 1. Assigning ports to VLANs comes in a later session.
 - `interface Vlan1` has no IP address and is shut down, so the switch can't be reached over the network yet.
 - Not hardened yet (planned): default hostname, no enable secret, built-in web server on, and no clock source (the timestamps read 1993).
 - A full backup of the running configuration is kept in our private log, not in this repository.
+- 
+## Known gaps
+
+- Clock is set to Pacific time (about 1 hour off); time zone and NTP planned for Week 7.
+- MGT still at the factory address 192.168.1.1/24; moves into VLAN 10 in Week 7.
+- No dataplane links yet; the trunk to SW1 is planned for Week 7.
 
 ## Recovery
 
