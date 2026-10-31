@@ -11,8 +11,8 @@ Built: Day 4 (Wed Oct 28, 2026)
 | Hostname | `pi1` |
 | Address | 10.20.10.10/24 on `eth0`, static, no gateway |
 | Wi-Fi | Not configured; `wlan0` is down with no address |
-| Remote access | SSH with password (moving to SSH keys during hardening) |
-| Connected to | SW1 port Gi0/2 (VLAN 10); reached from the admin laptop through the switch |
+| Remote access | SSH with password (SSH with keys only (password and root login disabled) |
+| Connected to | SW1 port Gi0/2 (access VLAN 10); MGMT) |
 
 The Pi has never been on the home network. With no gateway and no Wi-Fi, it can reach only the laptop at the other end of the cable.
 
@@ -77,6 +77,51 @@ A read-only check on Day 5 showed the Day 4 card held the full desktop Raspberry
 2. Appended the public key to `~/.ssh/authorized_keys` on pi1 (folder 700, file 600). Windows has no `ssh-copy-id`, so the key was piped over ssh.
 3. Tested key login with passwords switched off before changing anything (`ssh -o PasswordAuthentication=no`); the Pi's log showed `Accepted publickey`.
 4. Found that `/etc/ssh/sshd_config.d/50-cloud-init.conf`, written at imaging, sets `PasswordAuthentication yes`. sshd uses the first value it reads, and the files load alphabetically, so we added `10-tekexec.conf`:
+
+## SSH hardening (Day 5)
+
+**Goal:** only someone holding the laptop's private key can log in to pi1. Passwords no longer work over SSH, and root can't log in at all.
+
+### Key-based login
+
+1. On the laptop, generated an `ed25519` key pair protected by a passphrase (stored in our password manager). The private key never leaves the laptop.
+2. Copied the public key to pi1's `~/.ssh/authorized_keys`, with permissions `700` on `~/.ssh` and `600` on `authorized_keys`. SSH refuses keys stored with looser permissions.
+3. Confirmed key login worked **before** turning off passwords, so we couldn't lock ourselves out.
+
+### Turning off password login
+
+Created a drop-in file, `/etc/ssh/sshd_config.d/10-tekexec.conf`:
+
+    PasswordAuthentication no
+    KbdInteractiveAuthentication no
+    PermitRootLogin no
+
+**Why the file name matters:** cloud-init had already written `50-cloud-init.conf`, which sets `PasswordAuthentication yes`. sshd reads the files in this folder in name order and keeps the **first** value it finds for each setting, so `10-` wins over `50-`.
+
+### Verification
+
+- `sudo sshd -T` (prints the settings sshd is actually using) shows `passwordauthentication no`, `kbdinteractiveauthentication no` and `permitrootlogin no`.
+- A deliberate password-only login attempt from the laptop was refused with `Permission denied (publickey)`. Here, that error is the success message.
+
+### Account hygiene
+
+- The admin account is a new named user (not `pi`, and not our public GitHub name).
+- `sudo` still asks for that user's password, and it's the only account in the `sudo` group.
+
+### Jump box to SW1
+
+pi1 is now the entry point for managing the switch: laptop → pi1 → SW1.
+
+SW1's 2016-era IOS only offers old SSH algorithms that modern OpenSSH turns off by default. Rather than weakening SSH everywhere, pi1's `~/.ssh/config` re-enables them **for SW1 only**:
+
+    Host sw1
+        HostName 10.20.10.2
+        KexAlgorithms +diffie-hellman-group14-sha1
+        HostKeyAlgorithms +ssh-rsa
+        Ciphers +aes256-cbc
+
+From pi1, `ssh sw1` reaches the switch. Every other SSH connection keeps the modern defaults.
+
 ## Next
 
-Linux basics (users, updates, permissions), then hardening: SSH keys, and turning off password login.
+Trim unneeded services (avahi-daemon, bluetooth, wpa_supplicant, udisks2 are candidates), check that the system journal persists across reboots, and give pi1 a reliable time source once the firewall provides one.
