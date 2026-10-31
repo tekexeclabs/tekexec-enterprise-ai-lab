@@ -88,7 +88,7 @@ Every other SSH connection keeps modern defaults. This is acceptable only becaus
 
 ## Known gaps
 
-- Secrets are stored as type 5 (MD5) hashes, the strongest this release supports. Both credentials were rotated on Oct 31, 2026 (Day 7) after an exposure; values are kept in a password manager only.
+- Secrets are stored as type 9 (MD5) hashes, the strongest this release supports. Both credentials were rotated on Oct 31, 2026 (Day 7) after an exposure; values are kept in a password manager only.
 - No battery-backed clock or time source yet: the clock resets at every reboot (set by hand until the firewall provides time).
 - No default gateway yet; it will be 10.20.10.1 on the PA-220.
 - A leftover self-signed certificate entry from the old web server remains in the config (harmless; to be removed).
