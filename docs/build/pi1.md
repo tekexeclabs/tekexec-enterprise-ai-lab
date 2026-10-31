@@ -11,11 +11,10 @@ Built: Day 4 (Wed Oct 28, 2026)
 | Hostname | `pi1` |
 | Address | 10.20.10.10/24 on `eth0`, static, no gateway |
 | Wi-Fi | Not configured; `wlan0` is down with no address |
-| Remote access | SSH with password (SSH with keys only (password and root login disabled) |
-| Connected to | SW1 port Gi0/2 (access VLAN 10); MGMT) |
+| Remote access | SSH with keys only (password and root login disabled) |
+| Connected to | SW1 port Gi0/2 (access VLAN 10, MGMT) |
 
-The Pi has never been on the home network. With no gateway and no Wi-Fi, it can reach only the laptop at the other end of the cable.
-
+The Pi has never been on the home network. With no gateway and no Wi-Fi, it can reach only devices in the MGMT VLAN on SW1: the admin laptop and SW1 itself.
 ## How it was built
 
 1. **Raspberry Pi Imager 2.x** with these settings: Raspberry Pi 4, Raspberry Pi OS Lite (64-bit), hostname `pi1`, a named admin user (not the default `pi`), Wi-Fi left empty, SSH on with password authentication, Raspberry Pi Connect off.
@@ -69,14 +68,6 @@ A read-only check on Day 5 showed the Day 4 card held the full desktop Raspberry
 **Verified:** `multi-user.target`; no `lightdm` package; 15 services running; hostname `pi1`; `eth0` at 10.20.10.10/24; `wlan0` down; Debian 13.7 (trixie).
 
 **Lesson:** check what was installed, not just what was intended. One command (`systemctl get-default`) would have caught it on Day 4.
-## Day 5 hardening: SSH keys only
-
-**What changed:** pi1 now accepts SSH logins only with a key. Password login over SSH is off, and direct root login is off. `sudo` still requires the account password.
-
-1. Generated an ed25519 key pair on the admin laptop (`ssh-keygen -t ed25519`), protected with a passphrase. The private key never leaves the laptop.
-2. Appended the public key to `~/.ssh/authorized_keys` on pi1 (folder 700, file 600). Windows has no `ssh-copy-id`, so the key was piped over ssh.
-3. Tested key login with passwords switched off before changing anything (`ssh -o PasswordAuthentication=no`); the Pi's log showed `Accepted publickey`.
-4. Found that `/etc/ssh/sshd_config.d/50-cloud-init.conf`, written at imaging, sets `PasswordAuthentication yes`. sshd uses the first value it reads, and the files load alphabetically, so we added `10-tekexec.conf`:
 
 ## SSH hardening (Day 5)
 
