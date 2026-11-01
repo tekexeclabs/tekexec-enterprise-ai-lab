@@ -1,6 +1,6 @@
 # Lab IP plan v1
 
-Day 4 · Status: planned, not yet configured
+Day 4 · Status: partly configured (see Assigned addresses)
 
 All lab addresses are private (RFC 1918) inside 10.20.0.0/16 and do not overlap the home network.
 
@@ -26,3 +26,16 @@ All lab addresses are private (RFC 1918) inside 10.20.0.0/16 and do not overlap 
 - VLAN 1 (the switch default) carries no lab traffic.
 - The cloud range is reserved now so hybrid routing never hits overlapping networks.
 - The firewall's outside interface is a single client on the home network; firewall policy blocks the lab from reaching any home device.
+
+
+## Assigned addresses
+
+| Address | Device | Status |
+| --- | --- | --- |
+| 10.20.10.1 | FW1 ethernet1/2.10 (MGMT gateway) | Planned, Week 7 |
+| 10.20.10.2 | SW1 Vlan10 (management) | Configured Day 5 |
+| 10.20.10.3 | FW1 MGT port | Planned, Week 7 |
+| 10.20.10.10 | pi1 (jump box) | Configured Day 4 |
+| 10.20.10.200 | Admin laptop, USB Ethernet | Configured Day 4 |
+| 10.20.20.1 | FW1 ethernet1/2.20 (PLATFORM gateway) | Planned, Week 7 |
+| 10.20.30.1 | FW1 ethernet1/2.30 (APPS gateway) | Planned, Week 7 |
