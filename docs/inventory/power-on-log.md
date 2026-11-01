@@ -91,3 +91,6 @@ Note: a credential-handling mistake during SW1 hardening exposed its passwords. 
 | SW1 | Checked supported hash types (`enable algorithm-type ?`) | scrypt available; Day 5 had assumed type 5 (MD5) was the maximum | Finding |
 | SW1 | Rotated enable secret and local user password (exposed Oct 29), hashed as type 9 (scrypt); PuTTY logging paused while typing secrets | Enable and console login tested with the new credentials before saving; `copy running-config startup-config` [OK] | **PASS** |
 | GitHub | Audited the repository: file paths, links, and a scan for hashes, usernames, home addresses, serials and fingerprints | No private details found; fixed a filename case mismatch, stale notes and diagram labels | PASS |
+| FW1 | Read-only checks: interfaces, clock, virtual wire, zones, system settings | Factory default-vwire bridges ethernet1/1 (untrust) and ethernet1/2 (trust); clock on US/Pacific and about 1 hour slow; Telnet and HTTP management already disabled | Finding |
+| FW1 | `show config diff`, then `request shutdown system` | Empty diff; nothing changed; clean halt | PASS |
+| Network | Wrote the Week 7 link plan: trunk FW1 ethernet1/2 ↔ SW1 Gi0/3, MGT ↔ Gi0/4 at 10.20.10.3, untrust ethernet1/1 ↔ home router | [fw1-sw1-link-plan.md](../network/fw1-sw1-link-plan.md) | PASS |
