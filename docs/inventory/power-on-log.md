@@ -94,3 +94,62 @@ Note: a credential-handling mistake during SW1 hardening exposed its passwords. 
 | FW1 | Read-only checks: interfaces, clock, virtual wire, zones, system settings | Factory default-vwire bridges ethernet1/1 (untrust) and ethernet1/2 (trust); clock on US/Pacific and about 1 hour slow; Telnet and HTTP management already disabled | Finding |
 | FW1 | `show config diff`, then `request shutdown system` | Empty diff; nothing changed; clean halt | PASS |
 | Network | Wrote the Week 7 link plan: trunk FW1 ethernet1/2 ↔ SW1 Gi0/3, MGT ↔ Gi0/4 at 10.20.10.3, untrust ethernet1/1 ↔ home router | [fw1-sw1-link-plan.md](../network/fw1-sw1-link-plan.md) | PASS |
+
+## Day 8: Mon Nov 2, 2026
+
+Built both ends of the trunk between SW1 and FW1. SW1 now carries VLANs 10, 20 and 30 on one port, and FW1 has a Layer 3 subinterface and security zone for each VLAN. No cables are connected yet; that's the next session.
+
+### SW1: trunk to FW1 and FW1 management port
+
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| SW1 | Read-only check: `show running-config interface` for Gi0/3 and Gi0/4, `show running-config \| include default-gateway`, `dir flash:` | Gi0/3 and Gi0/4 in VLAN 999 and shut down; no default gateway set | PASS: clean starting state |
+| SW1 | Safety copy: `copy running-config flash:sw1-before-day8.cfg` | Copy saved to flash | Done |
+| SW1 | Gi0/3: `switchport mode trunk`, native VLAN 999, allowed VLANs 10,20,30, `switchport nonegotiate`, `no shutdown` | Two typos rejected by the switch with `% Invalid input`; nothing applied until retyped correctly | Done |
+| SW1 | Gi0/4: access VLAN 10, `spanning-tree portfast`, `no shutdown` | Standard portfast warning (single-host ports only) | Done |
+| SW1 | `ip default-gateway 10.20.10.1` (FW1's address on VLAN 10) | Accepted | Done |
+| SW1 | Verified with `show interfaces Gi0/3 switchport`, `show interfaces status`, `show vlan brief` | Trunk administratively on, operationally down (no cable), negotiation off, native 999, allowed 10,20,30; Gi0/4 in VLAN 10 | PASS |
+| SW1 | `copy running-config startup-config` | `[OK]` | **PASS: saved** |
+
+Note: while unplugged, Gi0/3 still appears under VLAN 999 in `show vlan brief`. That's its dormant access setting; it should disappear from that list once the trunk is connected and up. Details: [sw1-vlans.md](../network/sw1-vlans.md).
+
+### FW1: VLAN subinterfaces, zones and management address
+
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| FW1 | Boot and read-only check: `show clock`, `show system info`, `show interface all`, `show zone`, `show network virtual-router` | Clock correct (US/Eastern, EST); management port on its factory default address; no zones, profiles or subinterfaces | PASS |
+| FW1 | Configured ethernet1/2 as Layer 3 (no IP on the parent port) with subinterfaces ethernet1/2.10, .20 and .30, VLAN tags 10, 20 and 30, addresses 10.20.10.1/24, 10.20.20.1/24 and 10.20.30.1/24 | Pasting several lines into the 9600-baud console garbled input; .20 received an extra invalid address (10.20.20.1/2) | Mistake |
+| FW1 | Zones `mgmt`, `platform`, `apps` (one per subinterface); all three added to virtual router `default`; interface management profile `allow-ping` (ping only) on ethernet1/2.10 only; management port moved to 10.20.10.3/24, gateway 10.20.10.1 | Settings in the candidate configuration | Done |
+| FW1 | `validate full`, then `commit` | Validation result read while the job was still running; both commits failed: "address 10.20.20.1/2 ... is invalid" | FAIL: caught before going live |
+| FW1 | `set cli pager off`; deleted 10.20.20.1/2; read back interfaces, zones, virtual router, profile and system settings line by line | All correct; .20 has only 10.20.20.1/24 | Fixed |
+| FW1 | `validate full`, `commit` | Configuration committed successfully | **PASS** |
+| FW1 | `show interface all`, `show system info` | .10/.20/.30 in zones mgmt/platform/apps, virtual router default, correct tags and addresses; ethernet1/2 down (no cable); management port 10.20.10.3 | **PASS: committed** |
+| FW1 | `request shutdown system` | System halted; powered off | Done |
+
+### What we learned
+
+- **The commit is a safety net.** PAN-OS checks the whole configuration before making it live, and it refused an invalid address instead of applying a broken setup.
+- **One line at a time on a console.** The firewall's console runs at 9600 baud. Pasting a block of commands overran it, dropped characters (`/24` became `/2`), and sent stray keystrokes into the output pager.
+- **Read the right job, and wait for it.** A validation result is final only when its status is `FIN`. Check the job ID the command just printed, not an older one.
+- **Take the "before" snapshot once.** A second save under the same name overwrote it. The earlier Day 7.5 snapshot served as the rollback point instead.
+- **Firewall zones start closed.** With no security rules yet, FW1's built-in defaults allow traffic within a zone and deny traffic between zones. VLANs 10, 20 and 30 are already isolated from each other until rules are written.
+
+### Current state
+
+| Component | Setting |
+| --- | --- |
+| SW1 Gi0/3 | Trunk to FW1 ethernet1/2: native VLAN 999, allowed 10,20,30, DTP off |
+| SW1 Gi0/4 | Access VLAN 10, for FW1's management port |
+| SW1 default gateway | 10.20.10.1 |
+| FW1 ethernet1/2.10 | Tag 10, 10.20.10.1/24, zone mgmt, ping allowed |
+| FW1 ethernet1/2.20 | Tag 20, 10.20.20.1/24, zone platform |
+| FW1 ethernet1/2.30 | Tag 30, 10.20.30.1/24, zone apps |
+| FW1 management port | 10.20.10.3/24, gateway 10.20.10.1 |
+| Cables | None connected between SW1 and FW1; FW1 has no connection to the home network |
+
+## Pending
+
+- Connect FW1 ethernet1/2 to SW1 Gi0/3 (trunk) and FW1's management port to SW1 Gi0/4, then test from pi1: ping 10.20.10.1 and 10.20.10.3
+- Week 8: security rules between zones, address translation, DNS and DHCP design, then the connection to the home router with a test proving the lab can't reach home devices
+- FW1: remove the unused threat-update schedule (no license)
+  
