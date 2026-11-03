@@ -89,3 +89,26 @@ VLANs 1002–1005 are built in for legacy network types (FDDI, Token Ring) that 
 ## Recovery
 
 To return SW1 to a blank state: `write erase`, then `delete flash:vlan.dat`, then `reload`, answering **no** when asked to save.
+
+## Day 8 (Mon Nov 2, 2026): trunk to FW1 and FW1 management port
+
+| Port | Change | Purpose |
+| --- | --- | --- |
+| Gi0/3 | Trunk; native VLAN 999; allowed VLANs 10,20,30; DTP off (`switchport nonegotiate`) | Carries the three lab VLANs to FW1 ethernet1/2 |
+| Gi0/4 | Access VLAN 10; portfast | FW1's MGT port |
+| Switch | `ip default-gateway 10.20.10.1` | FW1's future address on VLAN 10 |
+
+Safety copy taken first (`flash:sw1-before-day8.cfg`). Saved to startup-config. No cables connected yet.
+
+`show interfaces GigabitEthernet0/3 switchport` (excerpt):
+
+```
+Administrative Mode: trunk
+Operational Mode: down
+Administrative Trunking Encapsulation: dot1q
+Negotiation of Trunking: Off
+Trunking Native Mode VLAN: 999 (UNUSED)
+Trunking VLANs Enabled: 10,20,30
+```
+
+The native VLAN (999) is not in the allowed list, so untagged traffic on the trunk is dropped.
