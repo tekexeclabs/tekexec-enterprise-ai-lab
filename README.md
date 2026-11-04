@@ -38,7 +38,7 @@ Shelved as spares: a second 2960G, a Catalyst 3560G and a Cisco ISR 4331. The la
 ## Repository Layout
 
 - `docs/inventory/`: hardware inventory, verified specs and the power-on log
-- `docs/network/`: IP plan and switch configuration notes
+- `docs/network/`: IP plan, cabling and switch configuration notes
 - `docs/build/`: build logs for each device
 - `docs/diagrams/`: architecture diagrams
 - `docs/decisions/`: one short file per architecture decision
