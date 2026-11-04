@@ -1,6 +1,6 @@
 ## Current Status
 
-**Day 7 (in progress): Credential rotation and firewall prep.**
+**Day 9: Firewall connected to the lab switch.**
 
 - Day 1: every device identified from its labels and checked against manufacturer support dates.
 - Day 2: fixed a server memory fault by reseating one DIMM.
@@ -9,6 +9,8 @@
 - Day 5: rebuilt the Pi as a minimal server with key-only SSH, hardened the switch (SSH-only management on the MGMT VLAN), and made the Pi the jump box for managing the switch.
 - Day 6: first power-on of the firewall under supervision, read-only inventory of its software and licenses, and a new admin password committed.
 - Day 7: rotated the switch's credentials after an exposure and audited this repository for leaked details.
+- Day 8: secured the switch (named hostname, SSH-only management on the management VLAN, a trunk port ready for the firewall, unused ports locked), and set up the firewall's three lab zones on VLAN subinterfaces, with traffic between zones blocked by default.
+- Day 9: moved the laptop and Raspberry Pi onto the management VLAN, connected the firewall to the switch with a VLAN trunk, and got the firewall's first reply from the lab.
 
 Full record: [power-on log](docs/inventory/power-on-log.md).
 
@@ -16,10 +18,10 @@ Full record: [power-on log](docs/inventory/power-on-log.md).
 
 | Role | Device | Status |
 | --- | --- | --- |
-| Firewall and router between lab zones | Palo Alto PA-220 | Powered on for supervised sessions; factory config; no data links yet |
-| Lab switch | Cisco Catalyst 2960G-24TC-L | Hardened; VLANs 10, 20, 30, 999; SSH management on VLAN 10 |
-| Virtualization server | Dell PowerEdge R730 (Proxmox VE planned) | Hardware verified: 2 x 16-core Xeon, 128 GB; not cabled |
-| Monitoring / jump box | Raspberry Pi 4 | Jump box on VLAN 10; SSH keys only |
+| Firewall and router between lab zones | Palo Alto PA-220 | Zones and VLAN subinterfaces configured; connected to the switch by trunk; zones isolated (no allow rules yet) |
+| Lab switch | Cisco Catalyst 2960G-24TC-L | VLANs 10, 20, 30, 999; trunk to firewall; SSH-only management |
+| Virtualization server | Dell PowerEdge R730 (Proxmox VE planned) | Hardware verified, memory fault fixed |
+| Monitoring / jump box | Raspberry Pi 4 | Built; on the management VLAN |
 | Cloud | AWS | Planned |
 
 Shelved as spares: a second 2960G, a Catalyst 3560G and a Cisco ISR 4331. The lab runs only what earns its place.
