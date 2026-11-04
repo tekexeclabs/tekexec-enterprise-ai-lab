@@ -134,22 +134,27 @@ Note: while unplugged, Gi0/3 still appears under VLAN 999 in `show vlan brief`. 
 - **Take the "before" snapshot once.** A second save under the same name overwrote it. The earlier Day 7.5 snapshot served as the rollback point instead.
 - **Firewall zones start closed.** With no security rules yet, FW1's built-in defaults allow traffic within a zone and deny traffic between zones. VLANs 10, 20 and 30 are already isolated from each other until rules are written.
 
-### Current state
+## Day 9: Tue Nov 3, 2026
 
-| Component | Setting |
-| --- | --- |
-| SW1 Gi0/3 | Trunk to FW1 ethernet1/2: native VLAN 999, allowed 10,20,30, DTP off |
-| SW1 Gi0/4 | Access VLAN 10, for FW1's management port |
-| SW1 default gateway | 10.20.10.1 |
-| FW1 ethernet1/2.10 | Tag 10, 10.20.10.1/24, zone mgmt, ping allowed |
-| FW1 ethernet1/2.20 | Tag 20, 10.20.20.1/24, zone platform |
-| FW1 ethernet1/2.30 | Tag 30, 10.20.30.1/24, zone apps |
-| FW1 management port | 10.20.10.3/24, gateway 10.20.10.1 |
-| Cables | None connected between SW1 and FW1; FW1 has no connection to the home network |
+The laptop and pi1 moved onto VLAN 10 through SW1, and SW1 was connected to FW1 by a VLAN trunk. FW1 answered its first ping from the lab. No configuration was changed on either device.
 
-## Pending
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| SW1, PI1, Laptop | Cable trace; laptop USB Ethernet adapter to SW1 Gi0/1, pi1 to Gi0/2 | Port 2 stayed dark until pi1 was powered on; then ports 1 and 2 green | Done |
+| SW1 | `show ip interface brief` (Vlan lines) | Vlan10 10.20.10.2 up/up; Vlan1 administratively down by design | PASS |
+| SW1 | `show interfaces status` | Gi0/1 and Gi0/2 connected, VLAN 10, 1000 Mb/s full duplex; Gi0/3 trunk and Gi0/4 not connected yet; Gi0/5-24 disabled in VLAN 999 | PASS |
+| Laptop, PI1 | Ping SW1 (10.20.10.2) and pi1 (10.20.10.10) | 4/4 replies each, 0% loss; first reply slower while ARP resolved | PASS |
+| PI1, SW1 | SSH from pi1 to SW1; `show privilege`, `show users` | Privilege 15; one SSH session from 10.20.10.10 | **PASS: first network management of SW1** |
+| FW1 | Console moved to FW1; `show interface management` and `show interface ethernet1/2` (before) | Both links down (no cables) | PASS (look only) |
+| FW1 | `show deviceconfig system service` (read-only, configure mode, exited without changes) | Telnet and HTTP disabled; ping, SSH and HTTPS still allowed on MGT (factory defaults) | Recorded |
+| SW1, FW1 | Cable: SW1 Gi0/4 to FW1 MGT | MGT link 1000/full/up; laptop ping to 10.20.10.3: 4/4 | PASS |
+| SW1, FW1 | Cable: SW1 Gi0/3 (trunk) to FW1 port 2 | ethernet1/2 link 1000/full/up, confirming the jack labeled 2 is ethernet1/2 | PASS |
+| SW1 | `show interfaces trunk` | Gi0/3 mode on, 802.1q, trunking, native VLAN 999, VLANs 10, 20, 30 allowed and forwarding | PASS |
+| PI1, FW1 | pi1 ping to 10.20.10.1; FW1 `ping source 10.20.10.1 host 10.20.10.10` | 4/4 and 19/19, 0% loss | **PASS: first traffic through the trunk to FW1** |
+| PI1 | SSH to SW1 by address instead of the saved shortcut | "No matching key exchange method": SW1 offers only older SHA-1 methods that current OpenSSH refuses by default | Finding: use the saved `sw1` SSH shortcut |
+| FW1 | Reviewed ethernet1/2 counters | 51 receive errors on the parent interface; likely untagged spanning-tree and CDP frames from SW1, dropped because the parent has no untagged subinterface. Ping traffic unaffected | Watch |
+| All | Shutdown: FW1 `request shutdown system`, pi1 `sudo poweroff`, SW1 off at the strip | Clean shutdown; all cables left in place | Done |
 
-- Connect FW1 ethernet1/2 to SW1 Gi0/3 (trunk) and FW1's management port to SW1 Gi0/4, then test from pi1: ping 10.20.10.1 and 10.20.10.3
-- Week 8: security rules between zones, address translation, DNS and DHCP design, then the connection to the home router with a test proving the lab can't reach home devices
-- FW1: remove the unused threat-update schedule (no license)
-  
+Notes:
+- pi1 has no time source (no internet by design), so its clock is wrong. A lab time source is planned before monitoring starts, because log timestamps matter.
+- Standard cabling is now recorded in [lab-cabling.md](../network/lab-cabling.md).
