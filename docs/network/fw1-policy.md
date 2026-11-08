@@ -1,4 +1,5 @@
 # FW1 security policy and NAT
+![Security rules overview](../diagrams/security-rules-overview.png)
 
 Device: FW1, Palo Alto PA-220, PAN-OS 9.1.15-h1
 Committed: Day 10 (Sat Nov 7, 2026), commit job 5, no warnings
