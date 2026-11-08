@@ -158,3 +158,61 @@ The laptop and pi1 moved onto VLAN 10 through SW1, and SW1 was connected to FW1 
 Notes:
 - pi1 has no time source (no internet by design), so its clock is wrong. A lab time source is planned before monitoring starts, because log timestamps matter.
 - Standard cabling is now recorded in [lab-cabling.md](../network/lab-cabling.md).
+
+## Day 10: Sat Nov 7, 2026
+
+Goal: finish Week 7 by connecting FW1's outside port to the home router, then start Week 8 with FW1's first security rules, proven with real traffic and the traffic log.
+
+### Session 1: outside interface, built while unplugged
+
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| FW1 | Read-only checks: application content version, zones, virtual wires, ethernet1/1 | Zones mgmt, platform, apps only; no virtual wire; ethernet1/1 unconfigured | PASS |
+| Laptop | Accidental paste into the FW1 console; closed PuTTY and reconnected | Reset the draft with `load config from running-config.xml`; nothing had been committed | Recovered |
+| FW1 | Snapshot `day10-before-s1.xml`; ethernet1/1 set to Layer 3 DHCP client with default route; added to virtual router `default`; new zone `untrust`; no interface management profile | `validate full` FIN/OK; commit FIN/OK | PASS |
+| FW1 | `show interface ethernet1/1` | Zone untrust, management profile N/A, link down (no cable yet) | PASS |
+
+### Session 2: connect, then test from both sides
+
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| FW1 | Outside cable: home router LAN port to FW1 port 1 | 1000/full/up; address received by DHCP; default route via the home router | PASS |
+| FW1 | Ping from the outside interface to 1.1.1.1 | 4/4 replies, about 5 ms | PASS |
+| Laptop (home Wi-Fi) | Ping FW1's outside address; TCP 443 test; ping 10.20.10.1 with the lab cable unplugged | All failed | PASS: home network cannot reach FW1 or the lab |
+| PI1 | Default gateway 10.20.10.1 and DNS 1.1.1.1 / 9.9.9.9 set with nmcli; cloud-init network config disabled | `default via 10.20.10.1`; resolv.conf correct | PASS |
+| PI1 | Ping 1.1.1.1 and the home router | 0 of 4 replies each | PASS: built-in interzone deny blocks the lab |
+| FW1 | `show log traffic` | No entries | Finding: the built-in deny doesn't log, so blocks were invisible |
+
+### Sessions 3 and 4: first security rules, NAT and proof
+
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| FW1 | Snapshot `day10-before-s3.xml`; address objects `home-lan` (home network, kept private) and `pi1` (10.20.10.10/32) | Created | Done |
+| FW1 | Security rules, top to bottom: `deny-lab-to-home`, `allow-pi1-updates` (dns, ntp, ping, web-browsing, ssl, apt-get on their default ports), `deny-lab-outbound-other`; all log at session end | Created | Done |
+| FW1 | NAT rule `nat-lab-outbound`: lab zones to untrust, dynamic IP and port on ethernet1/1 | Created | Done |
+| FW1 | Commit (job 5). The separate validate job was still running; a commit runs its own full validation | FIN/OK, no warnings | PASS |
+| PI1 | Time sync (automatic) | `ntp-base` allowed within seconds of the commit; clock synchronized; time zone set to America/New_York | PASS |
+| PI1 | Ping 1.1.1.1; DNS lookup of deb.debian.org; HTTPS to www.debian.org | 4/4; resolved; HTTP/2 200 | PASS |
+| PI1 | `sudo apt update` (package list only) | App-ID identified it as `apt-get`; 35 packages upgradable, not installed yet | PASS |
+| PI1 | Ping the home router | 0/4; logged under `deny-lab-to-home` | PASS |
+| PI1 | SSH to github.com | Timed out; 5 retries logged under `deny-lab-outbound-other` | PASS |
+| FW1 | `show log traffic direction equal backward` | Every allow and deny recorded with its rule name | **PASS: Day 10 proven** |
+
+Details: [FW1 outside interface](../network/fw1-outside.md) · [FW1 security policy and NAT](../network/fw1-policy.md) · [Decision record](../decisions/2026-11-07-outside-connection-and-first-rules.md)
+
+Note: home network addresses, FW1's outside address and usernames are kept in private notes.
+
+## Pending
+
+### Next: Day 11
+
+- Security-zone diagram v2 in `docs/diagrams/`: add the untrust zone, the one allowed path from pi1, and the two blocked directions
+- LinkedIn posts for Days 9 and 10
+- Lab DHCP and DNS design (decision record): addresses for VMs on PLATFORM and APPS, name lookups inside the lab, the lab time source, and the IPv6 stance
+- PI1: confirm the default gateway survives a reboot; install the 35 pending updates
+
+### Later
+
+- FW1 hardening: decide on HTTPS on the MGT port; remove the unlicensed threat-update schedule
+- SW1 hardening: disable CDP on the trunk (watching receive errors on FW1 ethernet1/2)
+- SRV1: firmware updates, wipe the previous owner's drives, install Proxmox VE
