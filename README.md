@@ -11,7 +11,9 @@
 - Day 7: rotated the switch's credentials after an exposure and audited this repository for leaked details.
 - Day 8: secured the switch (named hostname, SSH-only management on the management VLAN, a trunk port ready for the firewall, unused ports locked), and set up the firewall's three lab zones on VLAN subinterfaces, with traffic between zones blocked by default.
 - Day 9: moved the laptop and Raspberry Pi onto the management VLAN, connected the firewall to the switch with a VLAN trunk, and got the firewall's first reply from the lab.
-- Day 10: connected the firewall's outside port to the home router, proved the home network can't reach the lab, and wrote the first three logged rules: the lab can never reach a home device, the jump box may fetch updates and time, and everything else is blocked. Policy and proof
+- Day 10: connected the firewall's outside port to the home router, proved the home network can't reach the lab, and wrote the first three logged rules: the lab can never reach a home device, the jump box may fetch updates and time, and everything else is blocked. [Policy and proof](docs/network/fw1-policy.md).
+
+![Security rules overview](docs/diagrams/security-rules-overview.png)
 
 Full record: [power-on log](docs/inventory/power-on-log.md).
 
