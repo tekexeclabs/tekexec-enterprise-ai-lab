@@ -27,3 +27,11 @@ One USB-to-RJ-45 console cable is shared. It connects to SW1's rear CONSOLE port
 ## Nothing connects to the home network
 
 No lab cable reaches the home router. FW1 ports 1 and 3-8 are empty.
+
+## Outside connection (added Day 10)
+
+| Cable | FW1 port | Far end | Settings |
+| --- | --- | --- | --- |
+| Cat6 | Front jack 1 = ethernet1/1 (verified by link up) | Home router, a LAN port (never its WAN port, never the ISP's box) | Zone untrust; DHCP client with default route; no interface management profile |
+
+The home router has no route to the 10.20.x lab networks, and FW1's outside port answers nothing from the home side (no ping, SSH or HTTPS). Unplugging this one cable disconnects the lab from everything outside it.
