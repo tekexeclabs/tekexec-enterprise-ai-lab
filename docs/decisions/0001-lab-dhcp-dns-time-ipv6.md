@@ -154,11 +154,13 @@ Home routers often hand out IPv6 addresses that can be reachable from the intern
 
 Must check on device that FW1 does not forward IPv6 and that pi1 holds only link-local IPv6 addresses.
 
-## Must check on device (next hardware session, read-only)
+## Must check on device (results, Day 12, Mon Nov 9, 2026)
 
-- [ ] SW1 clock source and behavior after reboot (`show clock detail`)
-- [ ] pi1 time service (`timedatectl status`) and IPv6 addresses (`ip -6 addr show eth0`)
-- [ ] FW1 DHCP relay support on subinterfaces, and IPv6 disabled on all interfaces
+- [x] SW1 clock: no time source; starts at the 1993 default after every boot. Eastern time zone and US daylight-saving rule already configured.
+- [x] pi1 time: synchronized, NTP service active, time zone America/New_York, no real-time clock. `chrony` not installed; available from Debian (4.6.1-3+deb13u2).
+- [x] pi1 IPv6: link-local address only (fe80::…, scope link); no global IPv6.
+- [x] FW1 IPv6: no IPv6 configuration on ethernet1/1 or ethernet1/2 and its subinterfaces.
+- [x] FW1 DHCP relay: available on ethernet1/2.30 (listed in Network > DHCP > DHCP Relay). Working relay to be proven in Week 13.
 
 ## Revisit when
 
