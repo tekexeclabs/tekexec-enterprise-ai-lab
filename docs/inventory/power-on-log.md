@@ -202,17 +202,17 @@ Details: [FW1 outside interface](../network/fw1-outside.md) · [FW1 security pol
 
 Note: home network addresses, FW1's outside address and usernames are kept in private notes.
 
-## Pending
-
-### Next: Day 11
-
+## Day 11 Sun Nov 9, 2026
 - Security-zone diagram v2 in `docs/diagrams/`: add the untrust zone, the one allowed path from pi1, and the two blocked directions
 - LinkedIn posts for Days 9 and 10
 - Lab DHCP and DNS design (decision record): addresses for VMs on PLATFORM and APPS, name lookups inside the lab, the lab time source, and the IPv6 stance
 - PI1: confirm the default gateway survives a reboot; install the 35 pending updates
 
-### Later
+## Day 12: Mon Nov 9, 2026
 
-- FW1 hardening: decide on HTTPS on the MGT port; remove the unlicensed threat-update schedule
-- SW1 hardening: disable CDP on the trunk (watching receive errors on FW1 ethernet1/2)
-- SRV1: firmware updates, wipe the previous owner's drives, install Proxmox VE
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| SRV1 | Pre-flight placement check (no power) | Desk beside the rack, rated well above the server's weight; front and rear clear; no direct sunlight; 5 ft Cat6 reaches SW1 | PASS |
+| SRV1 | Rear panel matched to Dell's R730 Owner's Manual | All 11 back-panel items located; PCIe slots 1-7 empty. [srv1.md](../build/srv1.md) | PASS |
+| SRV1 | Internal components identified from photos | Broadcom 5720 4-port 1 GbE network daughter card; Mini-PERC with cache battery (model to confirm); 2.5" 8-bay backplane; 6 fans | PASS |
+| SRV1 | Connection and undo plan reviewed | Planned: iDRAC 10.20.10.20 on SW1 Gi0/5 (VLAN 10); Gi0/6 reserved for the NIC 1 trunk. Open: iDRAC license, PERC model | Done |
