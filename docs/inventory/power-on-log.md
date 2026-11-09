@@ -216,3 +216,9 @@ Note: home network addresses, FW1's outside address and usernames are kept in pr
 | SRV1 | Rear panel matched to Dell's R730 Owner's Manual | All 11 back-panel items located; PCIe slots 1-7 empty. [srv1.md](../build/srv1.md) | PASS |
 | SRV1 | Internal components identified from photos | Broadcom 5720 4-port 1 GbE network daughter card; Mini-PERC with cache battery (model to confirm); 2.5" 8-bay backplane; 6 fans | PASS |
 | SRV1 | Connection and undo plan reviewed | Planned: iDRAC 10.20.10.20 on SW1 Gi0/5 (VLAN 10); Gi0/6 reserved for the NIC 1 trunk. Open: iDRAC license, PERC model | Done |
+| ~12:15 PM | FW1 | Software | `check pending-changes` (configure mode; unknown in operational mode) | no | PASS: draft matches live config |
+| ~12:20 PM | FW1 | Software | Web UI: Device > Setup > Operations > Load named configuration snapshot (list only, Cancel) | day10-after.xml present | PASS: no new snapshot needed; FW1 unchanged |
+| ~12:25 PM | FW1 | Software | `show network interface ethernet ethernet1/1` and `ethernet1/2` (configure mode, read-only) | No IPv6 on any interface; subinterfaces .10/.20/.30 match IP plan; allow-ping only on .10 | PASS |
+| ~12:30 PM | FW1 | Software | Web UI: Network > DHCP > DHCP Relay (Add, Cancel) | ethernet1/2.30 offered as a relay interface | PASS: relay available for Week 13 |
+| ~12:32 PM | PI1 | Software | `timedatectl status`, `ip -6 addr show eth0`, `apt-cache policy chrony` | Synced, NTP active, no RTC; link-local IPv6 only; chrony not installed, candidate 4.6.1-3+deb13u2 | PASS |
+| ~12:37 PM | SW1 | Software | `show clock detail` (via `ssh sw1` from pi1) | *1993 default time, no time source; EST and US summer-time rule configured | Finding: needs pi1 as time source (Week 12) |
