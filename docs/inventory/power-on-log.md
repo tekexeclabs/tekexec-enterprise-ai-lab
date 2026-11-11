@@ -222,3 +222,6 @@ Note: home network addresses, FW1's outside address and usernames are kept in pr
 | ~12:30 PM | FW1 | Software | Web UI: Network > DHCP > DHCP Relay (Add, Cancel) | ethernet1/2.30 offered as a relay interface | PASS: relay available for Week 13 |
 | ~12:32 PM | PI1 | Software | `timedatectl status`, `ip -6 addr show eth0`, `apt-cache policy chrony` | Synced, NTP active, no RTC; link-local IPv6 only; chrony not installed, candidate 4.6.1-3+deb13u2 | PASS |
 | ~12:37 PM | SW1 | Software | `show clock detail` (via `ssh sw1` from pi1) | *1993 default time, no time source; EST and US summer-time rule configured | Finding: needs pi1 as time source (Week 12) |
+| SW1 | Safety copy, then Gi0/5 moved from locked VLAN 999 to VLAN 10 | Port connected at 1 Gbps | PASS |
+| SRV1 iDRAC | Cabled to SW1 Gi0/5; ping, HTTPS check, web login | All succeeded from the admin laptop | PASS |
+| SRV1 iDRAC | License check in the web UI | iDRAC8 Enterprise | Verified |
