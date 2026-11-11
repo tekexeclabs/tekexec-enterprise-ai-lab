@@ -225,3 +225,12 @@ Note: home network addresses, FW1's outside address and usernames are kept in pr
 | SW1 | Safety copy, then Gi0/5 moved from locked VLAN 999 to VLAN 10 | Port connected at 1 Gbps | PASS |
 | SRV1 iDRAC | Cabled to SW1 Gi0/5; ping, HTTPS check, web login | All succeeded from the admin laptop | PASS |
 | SRV1 iDRAC | License check in the web UI | iDRAC8 Enterprise | Verified |
+
+## Day 14 (Wed Nov 11, 2026): iDRAC hardening (11.7 Part C)
+
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| SRV1 iDRAC | Created two named administrator accounts | Both logged in successfully | Pass |
+| SRV1 iDRAC | Disabled the default root account | Root login refused | Pass |
+| SRV1 iDRAC | Services trimmed to HTTPS (TLS 1.2 only) and Redfish | SSH 22 closed, HTTPS 443 open | Pass |
+| SRV1 iDRAC | Set DNS name srv1-idrac, domain lab.internal | Browser by name loads login page (Host header check kept on) | Pass |
