@@ -234,3 +234,4 @@ Note: home network addresses, FW1's outside address and usernames are kept in pr
 | SRV1 iDRAC | Disabled the default root account | Root login refused | Pass |
 | SRV1 iDRAC | Services trimmed to HTTPS (TLS 1.2 only) and Redfish | SSH 22 closed, HTTPS 443 open | Pass |
 | SRV1 iDRAC | Set DNS name srv1-idrac, domain lab.internal | Browser by name loads login page (Host header check kept on) | Pass |
+| SRV1 | Booted SystemRescue via iDRAC virtual media; zero-overwrite of the 100 GB SATA SSD | Drive's own erase unavailable (Sanitize unsupported, Security Erase frozen); full read-back all zeros | Clear done; SSD queued for certified destruction |
