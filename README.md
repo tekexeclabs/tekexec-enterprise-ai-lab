@@ -1,3 +1,7 @@
+# TEK EXEC | Building the Enterprise AI Lab
+
+A two-person build that turns retired enterprise hardware (Palo Alto PA-220, Cisco 2960G, Dell PowerEdge R730, Raspberry Pi) into a secure, documented hybrid-cloud AI platform. Every step is verified and logged.
+
 ## Current Status
 
 **Day 17: server storage rebuilt from scratch. Next: Proxmox VE.**
