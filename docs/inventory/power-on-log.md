@@ -214,17 +214,29 @@ Note: home network addresses, FW1's outside address and usernames are kept in pr
 | --- | --- | --- | --- |
 | SRV1 | Pre-flight placement check (no power) | Desk beside the rack, rated well above the server's weight; front and rear clear; no direct sunlight; 5 ft Cat6 reaches SW1 | PASS |
 | SRV1 | Rear panel matched to Dell's R730 Owner's Manual | All 11 back-panel items located; PCIe slots 1-7 empty. [srv1.md](../build/srv1.md) | PASS |
-| SRV1 | Internal components identified from photos | Broadcom 5720 4-port 1 GbE network daughter card; Mini-PERC with cache battery (model to confirm); 2.5" 8-bay backplane; 6 fans | PASS |
-| SRV1 | Connection and undo plan reviewed | Planned: iDRAC 10.20.10.20 on SW1 Gi0/5 (VLAN 10); Gi0/6 reserved for the NIC 1 trunk. Open: iDRAC license, PERC model | Done |
-| ~12:15 PM | FW1 | Software | `check pending-changes` (configure mode; unknown in operational mode) | no | PASS: draft matches live config |
-| ~12:20 PM | FW1 | Software | Web UI: Device > Setup > Operations > Load named configuration snapshot (list only, Cancel) | day10-after.xml present | PASS: no new snapshot needed; FW1 unchanged |
-| ~12:25 PM | FW1 | Software | `show network interface ethernet ethernet1/1` and `ethernet1/2` (configure mode, read-only) | No IPv6 on any interface; subinterfaces .10/.20/.30 match IP plan; allow-ping only on .10 | PASS |
-| ~12:30 PM | FW1 | Software | Web UI: Network > DHCP > DHCP Relay (Add, Cancel) | ethernet1/2.30 offered as a relay interface | PASS: relay available for Week 13 |
-| ~12:32 PM | PI1 | Software | `timedatectl status`, `ip -6 addr show eth0`, `apt-cache policy chrony` | Synced, NTP active, no RTC; link-local IPv6 only; chrony not installed, candidate 4.6.1-3+deb13u2 | PASS |
-| ~12:37 PM | SW1 | Software | `show clock detail` (via `ssh sw1` from pi1) | *1993 default time, no time source; EST and US summer-time rule configured | Finding: needs pi1 as time source (Week 12) |
+| SRV1 | Internal components identified from photos | Broadcom 5720 4-port 1 GbE network daughter card; Mini-PERC with cache battery; 2.5" 8-bay backplane; 6 fans | PASS |
+| SRV1 | Connection and undo plan reviewed | Planned: iDRAC 10.20.10.20 on SW1 Gi0/5 (VLAN 10); Gi0/6 reserved for the NIC 1 trunk | Done |
+| FW1 | `check pending-changes` (configure mode) | no | PASS: draft matches live config |
+| FW1 | Web UI: listed saved configuration snapshots (Cancel) | day10-after.xml present | PASS: FW1 unchanged |
+| FW1 | Read-only interface check, ethernet1/1 and ethernet1/2 | No IPv6 on any interface; subinterfaces .10/.20/.30 match the IP plan; ping allowed only on .10 | PASS |
+| FW1 | Web UI: DHCP Relay (Add, Cancel) | ethernet1/2.30 offered as a relay interface | PASS: relay available for Week 13 |
+| PI1 | `timedatectl status`, `ip -6 addr show eth0`, `apt-cache policy chrony` | Clock synced; link-local IPv6 only; chrony not installed yet | PASS |
+| SW1 | `show clock detail` | Clock at its 1993 default, no time source | Finding: needs pi1 as time source (Week 12) |
+| SRV1 | Read-only System Setup (F2) | BIOS 2.19.0, legacy BIOS boot; one RAID 1 virtual disk "Degraded"; drive in bay 1 "Failed" | Recorded; nothing changed |
+| SRV1 iDRAC | Factory reset, static address 10.20.10.20, new administrator password | Reset completed; address set from the server's own setup screen | PASS |
 | SW1 | Safety copy, then Gi0/5 moved from locked VLAN 999 to VLAN 10 | Port connected at 1 Gbps | PASS |
 | SRV1 iDRAC | Cabled to SW1 Gi0/5; ping, HTTPS check, web login | All succeeded from the admin laptop | PASS |
 | SRV1 iDRAC | License check in the web UI | iDRAC8 Enterprise | Verified |
+
+## Day 13: Tue Nov 10, 2026 (read-only iDRAC tour)
+
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| SRV1 iDRAC | Browsed by name (`https://srv1-idrac`) | 400 Bad Request: the iDRAC only answers to the name it believes it has (Host header check) | Finding; fixed Day 14 by renaming, check kept on |
+| SRV1 iDRAC | Firmware inventory | BIOS 2.19.0; iDRAC/Lifecycle Controller 2.86.86.86; PERC H730 Mini 25.5.9.0001; NIC 22.00.6; backplane 2.25; CPLD 1.0.1 | Recorded |
+| SRV1 iDRAC | System Inventory, storage | 2 x 1 TB (931 GB) Seagate SAS hard drives (2013, non-Dell firmware) + 1 x 100 GB Micron SATA SSD on the motherboard's SATA port. The "1.92 TB SATA SSD" stickers on the carriers were leftovers | Corrects the Day 1 inventory |
+| SRV1 iDRAC | System Event Log (read only, nothing cleared) | Previous owner cleared the log Feb 2026; later memory errors on DIMM_B2; our Day 1 DIMM_A1 errors; intermittent faults on the drive in bay 1 | Recorded |
+| SRV1 iDRAC | Services table | SNMP with a default community, SSH and remote RACADM enabled | Finding; trimmed Day 14 |
 
 ## Day 14: Wed Nov 11, 2026
 
@@ -292,5 +304,5 @@ Note: home network addresses, FW1's outside address and usernames are kept in pr
 | SRV1 | Booted SystemRescue through iDRAC virtual media (no USB stick) | Booted after choosing the virtual CD in the boot menu (F11) | PASS: rehearsal for the Proxmox install |
 | SRV1 | Checked the SSD's built-in erase options | Sanitize not supported; Security Erase blocked ("frozen" by the server at startup) | Purge not possible |
 | SRV1 | Zero-overwrite of the whole 100 GB SSD, then full read-back | Every byte reads zero, to the last byte | Clear done; SSD queued for certified destruction |
-
 Sanitization summary: [media-sanitization.md](media-sanitization.md).
+
