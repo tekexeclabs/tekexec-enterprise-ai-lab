@@ -66,8 +66,3 @@ Lesson (Days 14-16): we first blamed slot 1 for a missing drive. The same drive 
 - Update the new SSDs' firmware; install them in bays 0 and 1.
 - PERC to HBA mode; BIOS to UEFI; network boot removed.
 - Install Proxmox VE (10.20.10.21) via iDRAC virtual media (rehearsed Day 17).
-
-
-
-Laptop (10.20.10.200) -> SW1 Gi0/1 -> VLAN 10 -> SW1 Gi0/5 -> SRV1 iDRAC (10.20.10.20).
-Same VLAN, so FW1 is not in this path. Any outbound attempt by iDRAC is denied and logged by FW1.
