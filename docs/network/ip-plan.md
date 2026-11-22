@@ -42,7 +42,7 @@ Status: **In use** = configured and verified on the device. **Planned** = reserv
 | 10.20.10.2 | sw1.lab.internal | SW1 Vlan10 management | Infrastructure | In use (Day 8) |
 | 10.20.10.3 | fw1.lab.internal | FW1 MGT port | Infrastructure | In use (Day 8) |
 | 10.20.10.10 | pi1.lab.internal | pi1 (jump box, lab time source) | Infrastructure | In use (Day 4) |
-| 10.20.10.20 | srv1-idrac.lab.internal | SRV1 iDRAC8 (out-of-band management) | Infrastructure | Planned (Week 11) |
+| 10.20.10.20 | srv1-idrac.lab.internal | SRV1 iDRAC8 (out-of-band management) | Infrastructure | In use (Day 12) |
 | 10.20.10.21 | srv1.lab.internal | SRV1 Proxmox VE host management | Infrastructure | Planned (Week 12) |
 | 10.20.10.200 | (none) | Admin laptop, USB Ethernet adapter (no gateway, no DNS) | Admin | In use (Day 4) |
 
@@ -99,3 +99,4 @@ Every lab subnet (10.20.10.0/24, 10.20.20.0/24, 10.20.30.0/24) was checked again
 | --- | --- | --- |
 | v1 | Day 4, Oct 28, 2026 | VLANs 10, 20, 30 and 999; gateways at .1 on FW1; first monitoring VM proposed at 10.20.20.10 |
 | v2 | Day 12, Nov 9, 2026 | Ranges aligned with ADR 0001. Monitoring VM moved from .10 to **10.20.20.50** (.10 is in the infrastructure range and now belongs to the service VM, svc1). SRV1 iDRAC (10.20.10.20) and Proxmox host (10.20.10.21) reserved. Names added for every address |
+
