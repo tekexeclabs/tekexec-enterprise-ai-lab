@@ -226,12 +226,71 @@ Note: home network addresses, FW1's outside address and usernames are kept in pr
 | SRV1 iDRAC | Cabled to SW1 Gi0/5; ping, HTTPS check, web login | All succeeded from the admin laptop | PASS |
 | SRV1 iDRAC | License check in the web UI | iDRAC8 Enterprise | Verified |
 
-## Day 14 (Wed Nov 11, 2026): iDRAC hardening (11.7 Part C)
+## Day 14: Wed Nov 11, 2026
+
+### Session 1: iDRAC hardening
 
 | Device | Action | Observed | Result |
 | --- | --- | --- | --- |
-| SRV1 iDRAC | Created two named administrator accounts | Both logged in successfully | Pass |
-| SRV1 iDRAC | Disabled the default root account | Root login refused | Pass |
-| SRV1 iDRAC | Services trimmed to HTTPS (TLS 1.2 only) and Redfish | SSH 22 closed, HTTPS 443 open | Pass |
-| SRV1 iDRAC | Set DNS name srv1-idrac, domain lab.internal | Browser by name loads login page (Host header check kept on) | Pass |
-| SRV1 | Booted SystemRescue via iDRAC virtual media; zero-overwrite of the 100 GB SATA SSD | Drive's own erase unavailable (Sanitize unsupported, Security Erase frozen); full read-back all zeros | Clear done; SSD queued for certified destruction |
+| SRV1 iDRAC | Created two named administrator accounts | Both logged in successfully | PASS |
+| SRV1 iDRAC | Disabled the default root account | Root login refused | PASS |
+| SRV1 iDRAC | Services trimmed to HTTPS (TLS 1.2 only) and Redfish; SSH, remote RACADM, SNMP off | SSH 22 closed, HTTPS 443 open | PASS |
+| SRV1 iDRAC | Set DNS name srv1-idrac, domain lab.internal | Browser by name loads the login page (Host header check kept on) | PASS |
+
+### Session 2: firmware against Dell's latest
+
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| SRV1 | Compared every component with Dell's downloads (browsed by model) | BIOS, iDRAC (final iDRAC8 release), PERC, NIC, backplane and CPLD all current; only a 2020 "Recommended" power-supply update is newer | No updates applied (policy: critical only) |
+| SRV1 iDRAC | Checked Dell security advisories DSA-2024-089, -295, -021 | All fixed in the installed iDRAC version and further mitigated by our settings (IPMI over LAN and SSH off) | Covered |
+
+### Session 3: first power-on and live health check
+
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| SRV1 | Powered on from the iDRAC; stopped at System Setup | No operating system started | PASS |
+| SRV1 | Power supplies under load | Both supplies carrying load, health OK, about 154 W | PASS |
+| SRV1 | Storage controller utility (look only) | PERC H730 Mini in RAID mode, HBA mode available; one RAID 1 virtual disk degraded; only the bay 0 drive detected | Recorded |
+| SRV1 | Boot settings (look only) | Network boot first, then the 100 GB SSD | Finding: old system boots from the SSD |
+
+### Session 4: drive reseat and swap test
+
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| SRV1 | Read the bay 1 drive's label; inspected its connector | Seagate 1 TB SAS, made Sept 2013, IBM firmware; contacts clean | Recorded |
+| SRV1 | Lid off with power fully cut; checked backplane cables | Both backplane data cables seated | PASS |
+| SRV1 | Reseated the bay 1 drive | Still not detected | Fault persists |
+| SRV1 | Moved the drive to bay 2 | Detected as "Foreign" (old RAID membership) | Concluded "slot 1 faulty" at the time. **Overturned Day 16** |
+
+## Day 15: Thu Nov 12, 2026
+
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| SRV1 | Lid off with power fully cut; located the 100 GB SSD | Inside the slim optical bay at the front left, wired to the motherboard, not the storage controller | PASS |
+| SRV1 iDRAC | Read the System Event Log (nothing cleared) | Day 14 amber front-panel message = the drive-removed event from the swap test | PASS |
+| SRV1 | Started Dell hardware diagnostics | "Unable to find diagnostics application": removed by a previous owner's system erase (likely) | Blocked |
+| SRV1 iDRAC | Reinstalled Dell hardware diagnostics; SHA-256 checked against Dell's published value before upload | Install job completed | PASS |
+| SRV1 | Dell diagnostics, quick run | CPU, memory, fans, power, backplane, network ports and the bay 0 drive pass; the old drive in bay 2 fails | PASS (old drive: Fail) |
+| SRV1 | Dell memory test, thorough mode (128 GB, 9 tests, about 52 minutes) | All tests passed | PASS |
+| SRV1 iDRAC | System Event Log after testing | The old drive in bay 2 faults intermittently; no memory errors | Finding: the drive is suspect, not only the slot |
+| Design | Storage and boot design decided | [ADR 0002](../decisions/0002-srv1-storage-and-boot.md) | Accepted |
+
+## Day 16: Fri Nov 13 to Sat Nov 14, 2026
+
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| SRV1 | Slot-1 retest: known-good drive (passed Dell diagnostics) moved from bay 0 to slot 1, server off | Listed by the controller as Online in slot 1; carrier lights steady green | **PASS: slot 1 works.** The old drive was the fault |
+| SRV1 | Drive moved back | Original layout restored | Done |
+| SRV1 | Wipe checkpoint: reviewed 2 x 1 TB SAS HDD and 1 x 100 GB SATA SSD (previous owner's data only) | Both builders signed off; method per NIST SP 800-88 Rev. 2 | PASS |
+| SRV1 | Deleted the previous owner's RAID configuration; storage controller one-pass erase on the bay 0 HDD | Erase completed; the bay 2 HDD was not visible to the controller | Clear done; both HDDs queued for certified destruction |
+
+## Day 17: Sun Nov 15, 2026
+
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| Laptop | Downloaded SystemRescue 13.03; SHA-256 checked against the project's published value | Match | PASS |
+| SRV1 | Booted SystemRescue through iDRAC virtual media (no USB stick) | Booted after choosing the virtual CD in the boot menu (F11) | PASS: rehearsal for the Proxmox install |
+| SRV1 | Checked the SSD's built-in erase options | Sanitize not supported; Security Erase blocked ("frozen" by the server at startup) | Purge not possible |
+| SRV1 | Zero-overwrite of the whole 100 GB SSD, then full read-back | Every byte reads zero, to the last byte | Clear done; SSD queued for certified destruction |
+
+Sanitization summary: [media-sanitization.md](media-sanitization.md).
