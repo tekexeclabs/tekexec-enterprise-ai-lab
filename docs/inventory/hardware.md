@@ -6,7 +6,7 @@ Last updated: November 22, 2026 (Day 17). SRV1 storage corrected on Day 13.
 | Tag | Device | Model (from label) | Power input (from label) | Support status | Role |
 | --- | --- | --- | --- | --- | --- |
 | FW1 | Palo Alto PA-220 | PA-220 | 12 V DC, 1.75 A, external adapter; two inputs | End of sale Jan 31, 2023; end of life Jan 31, 2028; last supported PAN-OS 10.2 | Lab edge firewall; routes and inspects traffic between lab zones |
-| SW1 | Cisco Catalyst 2960G | WS-C2960G-24TC-L | AC, 100â€“240 V | Past Cisco end of support (2017) | The lab's single switch |
+| SW1 | Cisco Catalyst 2960G | WS-C2960G-24TC-L | AC, 100-240 V | Past Cisco end of support (2017) | The lab's single switch |
 | SRV1 | Dell PowerEdge R730 | 8 x 2.5" bay chassis, 2x 750 W power supplies, 2x Xeon E5-2683 v4, 128 GB ECC; storage being replaced with 2x 960 GB enterprise SSD (Day 1 listed "2x 1.92 TB SATA SSD" from old stickers; actually 2x 1 TB SAS HDD + 1x 100 GB SSD, now retired) | AC, hot-swap supplies | No model-wide end-of-life date; iDRAC8 end of software maintenance Feb 2024 | Proxmox VE host |
 | PI1 | Raspberry Pi 4 (4 GB) | CanaKit kit | USB-C | Current | Uptime checks, jump box |
 
