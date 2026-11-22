@@ -1,6 +1,6 @@
 ## Current Status
 
-**Day 10: First firewall rules.**
+**Day 17: server storage rebuilt from scratch. Next: Proxmox VE.**
 
 - Day 1: every device identified from its labels and checked against manufacturer support dates.
 - Day 2: fixed a server memory fault by reseating one DIMM.
@@ -12,6 +12,13 @@
 - Day 8: secured the switch (named hostname, SSH-only management on the management VLAN, a trunk port ready for the firewall, unused ports locked), and set up the firewall's three lab zones on VLAN subinterfaces, with traffic between zones blocked by default.
 - Day 9: moved the laptop and Raspberry Pi onto the management VLAN, connected the firewall to the switch with a VLAN trunk, and got the firewall's first reply from the lab.
 - Day 10: connected the firewall's outside port to the home router, proved the home network can't reach the lab, and wrote the first three logged rules: the lab can never reach a home device, the jump box may fetch updates and time, and everything else is blocked. [Policy and proof](docs/network/fw1-policy.md).
+- Day 11: designed the lab's addressing, internal names, time source and IPv6 stance before building them ([ADR 0001](docs/decisions/0001-lab-dhcp-dns-time-ipv6.md)).
+- Day 12: reset the server's remote-management controller (iDRAC), gave it a lab address and cabled it to the switch.
+- Day 13: read-only tour of the iDRAC: found the drive stickers were wrong and a previous owner's error history.
+- Day 14: hardened the iDRAC (named admins, default account off, HTTPS and Redfish only), confirmed all firmware is current, and ran a first drive swap test.
+- Day 15: reinstalled Dell's missing diagnostics, passed a 52-minute thorough memory test across 128 GB, and decided the storage design ([ADR 0002](docs/decisions/0002-srv1-storage-and-boot.md)).
+- Day 16: proved the "faulty" drive slot was fine (the old drive was the fault), then signed off and began sanitizing the previous owner's drives.
+- Day 17: booted a rescue disk through the iDRAC with no USB stick and finished sanitizing the last drive. [Media sanitization](docs/inventory/media-sanitization.md).
 
 ![Security rules overview](docs/diagrams/security-rules-overview.png)
 
@@ -23,7 +30,7 @@ Full record: [power-on log](docs/inventory/power-on-log.md).
 | --- | --- | --- |
 | Firewall and router between lab zones | Palo Alto PA-220 | 	Running: three lab zones plus an outside zone; first logged security rules and outbound NAT (Day 10) |
 | Lab switch | Cisco Catalyst 2960G-24TC-L | Running: VLANs 10, 20, 30 and 999; trunk to the firewall; SSH-only management |
-| Virtualization server | Dell PowerEdge R730 (Proxmox VE planned) | Hardware verified, (not yet cabled) |
+| Virtualization server | Dell PowerEdge R730 (Proxmox VE next) | Hardware tested (memory, CPU, power); iDRAC hardened on the management VLAN; old drives sanitized; 2 x 960 GB enterprise SSDs received |
 | Monitoring / jump box | Raspberry Pi 4 | Running: jump box on MGMT; updates and time through the firewall only |
 | Cloud | AWS | Planned |
 
