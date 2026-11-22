@@ -202,11 +202,12 @@ Details: [FW1 outside interface](../network/fw1-outside.md) · [FW1 security pol
 
 Note: home network addresses, FW1's outside address and usernames are kept in private notes.
 
-## Day 11 Sun Nov 9, 2026
-- Security-zone diagram v2 in `docs/diagrams/`: add the untrust zone, the one allowed path from pi1, and the two blocked directions
-- LinkedIn posts for Days 9 and 10
-- Lab DHCP and DNS design (decision record): addresses for VMs on PLATFORM and APPS, name lookups inside the lab, the lab time source, and the IPv6 stance
-- PI1: confirm the default gateway survives a reboot; install the 35 pending updates
+## Day 11: Sun Nov 8, 2026
+
+| Device | Action | Observed | Result |
+| --- | --- | --- | --- |
+| Design | Lab addressing, DHCP, DNS, time source and IPv6 stance decided before building | [ADR 0001](../decisions/0001-lab-dhcp-dns-time-ipv6.md) | Accepted |
+| Docs | Security-rules overview diagram added | [security-rules-overview.png](../diagrams/security-rules-overview.png) | Done |
 
 ## Day 12: Mon Nov 9, 2026
 
@@ -305,4 +306,3 @@ Note: home network addresses, FW1's outside address and usernames are kept in pr
 | SRV1 | Checked the SSD's built-in erase options | Sanitize not supported; Security Erase blocked ("frozen" by the server at startup) | Purge not possible |
 | SRV1 | Zero-overwrite of the whole 100 GB SSD, then full read-back | Every byte reads zero, to the last byte | Clear done; SSD queued for certified destruction |
 Sanitization summary: [media-sanitization.md](media-sanitization.md).
-
