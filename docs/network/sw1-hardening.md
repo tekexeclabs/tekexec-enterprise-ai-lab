@@ -1,50 +1,101 @@
-# ADR 0002: SRV1 storage and boot design
+# SW1 hardening notes
 
-| Field | Value |
+Device: SW1, Cisco Catalyst 2960G (WS-C2960G-24TC-L), IOS 15.0(2)SE10a
+Configured: Day 5 (Thu Oct 29, 2026), over the console port
+Builds on: [SW1 VLAN notes](sw1-vlans.md) and [IP plan v1](ip-plan.md)
+
+## What changed
+
+| Change | Why |
 | --- | --- |
-| Status | Accepted (amended Day 17) |
-| Date | 2026-11-12 (Day 15); amended 2026-11-13 (Day 16) and 2026-11-15 (Day 17) |
-| Deciders | Infra, Software |
-| Scope | SRV1 (Dell PowerEdge R730): storage controller, drives, boot mode, retired media |
+| Hostname `SW1` | Matches the lab's device tags and diagrams |
+| `no ip domain-lookup` | A mistyped command no longer freezes the console while the switch looks it up as a hostname |
+| `ip domain-name lab.home.arpa` | Required before SSH keys can be generated. `home.arpa` is reserved for home networks |
+| Enable secret and a local admin account | Privileged mode and every login now need credentials (kept in our password manager) |
+| RSA 2048 keys, `ip ssh version 2` | Encrypted remote management |
+| VTY lines 0–15: `login local`, `transport input ssh`, 10-minute idle timeout | Remote access by SSH only, with a named account |
+| Console: `login local`, 15-minute idle timeout | Physical access also needs the account |
+| `no ip http server`, `no ip http secure-server` | Turns off the built-in web page |
+| `interface Vlan10` 10.20.10.2/24 | Management address in the MGMT VLAN |
+| Time zone EST with EDT summer time | Readable log timestamps |
 
-## Context
+## Port plan
 
-SRV1 will run Proxmox VE and every lab virtual machine. When this decision was made:
+| Port | Device | VLAN | State |
+| --- | --- | --- | --- |
+| Gi0/1 | Admin laptop | 10 MGMT | Access, portfast, on |
+| Gi0/2 | pi1 (jump box) | 10 MGMT | Access, portfast, on |
+| Gi0/3–24 | Unused | 999 UNUSED | Shut down |
 
-- Storage controller: PERC H730 Mini in RAID mode; HBA mode available.
-- Drives: two 1 TB SAS hard drives made in 2013 with non-Dell firmware. One fails Dell diagnostics and logs intermittent faults.
-- A 100 GB SATA SSD on the motherboard's SATA port, in the slim optical bay (a previous owner's boot disk).
-- Boot mode: legacy BIOS.
-- Memory: 128 GB ECC, passed Dell's thorough memory test.
+As configured on Day 5. Gi0/3, Gi0/4 and Gi0/5 were brought into use on Days 8 and 12; current state: [lab cabling](lab-cabling.md).
 
-Requirements: survive a single disk failure; detect silent data corruption; support snapshots for safe changes; follow current Proxmox and industry practice; stay within the lab budget.
+## Commands (credentials replaced with placeholders)
 
-## Decision
+```
+configure terminal
+hostname SW1
+no ip domain-lookup
+ip domain-name lab.home.arpa
+enable secret <enable-secret>
+username <admin-user> privilege 15 secret <admin-password>
+crypto key generate rsa modulus 2048
+ip ssh version 2
+line vty 0 15
+ login local
+ transport input ssh
+ exec-timeout 10 0
+line con 0
+ login local
+ exec-timeout 15 0
+exit
+no ip http server
+no ip http secure-server
+interface vlan 10
+ ip address 10.20.10.2 255.255.255.0
+ no shutdown
+interface range GigabitEthernet0/1 - 2
+ switchport mode access
+ switchport access vlan 10
+ spanning-tree portfast
+ no shutdown
+interface range GigabitEthernet0/3 - 24
+ switchport mode access
+ switchport access vlan 999
+ shutdown
+end
+copy running-config startup-config
+```
 
-1. **Controller:** switch the PERC H730 Mini to HBA mode and use a ZFS mirror (RAID 1) managed by Proxmox. Pool settings: ashift=12, lz4 compression, monthly scrub, ZFS event alerts, pool kept under 80% full.
-2. **Drives:** two used enterprise SATA SSDs, 960 GB class, with power-loss protection (bought: 2 x Intel D3-S4510 960 GB; the seller's SMART reports show health 100% and zero media errors, to be confirmed on our own server before use). Buy only drives with a health report of 90% or more and returns accepted. Update firmware to the vendor's latest before use.
-3. **Layout:** the Proxmox operating system and VM storage both live on the ZFS mirror. *(Amended Day 17: the 100 GB SSD is removed from the server and destroyed, not kept as a disabled spare.)*
-4. **Boot:** UEFI with Secure Boot enabled. Network boot (PXE) removed from the boot order.
-5. **Bays:** the new SSDs go in **bays 0 and 1**. *(Amended Day 16: slot 1 was retested with a known-good drive and works; the earlier fault came from the old drive, not the slot.)*
-6. **Retired media:** sanitized under NIST SP 800-88 Rev. 2, then destroyed by a certified service with a certificate of destruction. See [media sanitization](../inventory/media-sanitization.md).
+## Verification
 
-## Alternatives considered
+- `show ip ssh`: SSH enabled, version 2.0
+- `show ip interface brief`: Vlan10 10.20.10.2 up/up once a VLAN 10 port is connected
+- Console login and `enable` both tested **before** saving
+- SSH from pi1 reached `SW1#`; `show users` listed the console session and a VTY session from 10.20.10.10
 
-- **PERC hardware RAID 1 + LVM-thin:** a valid enterprise pattern, but no end-to-end checksums, and recovery is tied to this specific card. Proxmox advises against running ZFS on top of a hardware RAID controller with its own cache.
-- **480 GB drives:** about half the cost, but too little room under the 80% fill guideline once monitoring, logs and AI data grow.
-- **New consumer SSDs:** no power-loss protection.
-- **New enterprise SSDs at retail:** 3-5 times the price of used enterprise drives with health reports.
-- **100 GB SSD as a separate boot disk:** a single point of failure outside the mirror, with unknown wear.
-- **Internal SD card module for boot:** Proxmox writes logs and metrics constantly; SD cards wear out quickly.
-- **Legacy BIOS boot:** Proxmox warns against upgrading a ZFS root pool on legacy-BIOS (GRUB) systems; UEFI avoids this and allows Secure Boot.
+## Legacy SSH (scoped to this switch)
 
-## Consequences
+This IOS release only offers SHA-1 key exchange, `ssh-rsa` host keys and CBC ciphers, which modern OpenSSH disables by default. We allowed them **for SW1 only** in pi1's `~/.ssh/config`:
 
-- **Positive:** the platform survives a single drive failure; ZFS detects and repairs silent corruption; snapshots allow quick rollback; matches current Proxmox practice; Secure Boot blocks unsigned boot code.
-- **Negative:** switching to HBA mode required deleting the old virtual disk (done Day 16). ZFS reserves up to 16 GiB of RAM for cache by default. Used drives carry some wear (mitigated by health checks, returns and the mirror).
-- **Not a backup:** a mirror protects against disk failure only. Backups go to a separate target (after the Proxmox build), following the 3-2-1 rule.
-- **Validation (at the Proxmox install):** Proxmox shows each SSD's real model; SMART health readable; `zpool status` reports ONLINE with no errors; Secure Boot reported as enabled.
+```
+Host sw1
+    HostName 10.20.10.2
+    User <admin-user>
+    KexAlgorithms +diffie-hellman-group14-sha1
+    HostKeyAlgorithms +ssh-rsa
+    Ciphers +aes256-cbc
+```
 
-## Cost
+Every other SSH connection keeps modern defaults. This is acceptable only because SW1's management address sits on an isolated management VLAN.
 
-$300 plus tax for the two SSDs (November 2026, used, from a 99.7%-rated seller with 30-day returns).
+## Known gaps
+
+- On Day 5 the secrets were stored as type 5 (MD5) hashes. On Day 7 (Oct 31, 2026) both credentials were rotated after an exposure and are now stored as type 9 (scrypt), the strongest this release supports; values are kept in a password manager only.
+- No battery-backed clock or time source yet: the clock resets at every reboot. pi1 becomes its time source ([ADR 0001](../decisions/0001-lab-dhcp-dns-time-ipv6.md)).
+- Default gateway 10.20.10.1 (FW1) set on Day 8.
+- The IP domain name is `lab.home.arpa` (set only so SSH keys could be generated); the lab's DNS domain is now `lab.internal` (ADR 0001).
+- A leftover self-signed certificate entry from the old web server remains in the config (harmless; to be removed).
+
+## Recovery
+
+Before saving: power-cycle to return to the last saved configuration. After saving: password recovery is enabled on this switch.
