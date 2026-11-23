@@ -22,7 +22,7 @@ Requirements: survive a single disk failure; detect silent data corruption; supp
 ## Decision
 
 1. **Controller:** switch the PERC H730 Mini to HBA mode and use a ZFS mirror (RAID 1) managed by Proxmox. Pool settings: ashift=12, lz4 compression, monthly scrub, ZFS event alerts, pool kept under 80% full.
-2. **Drives:** two used enterprise SATA SSDs, 960 GB class, with power-loss protection (bought: 2 x Intel D3-S4510 960 GB, health 100%, zero media errors). Buy only drives with a health report of 90% or more and returns accepted. Update firmware to the vendor's latest before use.
+2. **Drives:** two used enterprise SATA SSDs, 960 GB class, with power-loss protection (bought: 2 x Intel D3-S4510 960 GB; the seller's SMART reports show health 100% and zero media errors, to be confirmed on our own server before use). Buy only drives with a health report of 90% or more and returns accepted. Update firmware to the vendor's latest before use.
 3. **Layout:** the Proxmox operating system and VM storage both live on the ZFS mirror. *(Amended Day 17: the 100 GB SSD is removed from the server and destroyed, not kept as a disabled spare.)*
 4. **Boot:** UEFI with Secure Boot enabled. Network boot (PXE) removed from the boot order.
 5. **Bays:** the new SSDs go in **bays 0 and 1**. *(Amended Day 16: slot 1 was retested with a known-good drive and works; the earlier fault came from the old drive, not the slot.)*
@@ -42,10 +42,9 @@ Requirements: survive a single disk failure; detect silent data corruption; supp
 
 - **Positive:** the platform survives a single drive failure; ZFS detects and repairs silent corruption; snapshots allow quick rollback; matches current Proxmox practice; Secure Boot blocks unsigned boot code.
 - **Negative:** switching to HBA mode required deleting the old virtual disk (done Day 16). ZFS reserves up to 16 GiB of RAM for cache by default. Used drives carry some wear (mitigated by health checks, returns and the mirror).
-- **Not a backup:** a mirror protects against disk failure only. Backups go to a separate target (Week 14), following the 3-2-1 rule.
-- **Validation (Week 12):** Proxmox shows each SSD's real model; SMART health readable; `zpool status` reports ONLINE with no errors; Secure Boot reported as enabled.
+- **Not a backup:** a mirror protects against disk failure only. Backups go to a separate target (after the Proxmox build), following the 3-2-1 rule.
+- **Validation (at the Proxmox install):** Proxmox shows each SSD's real model; SMART health readable; `zpool status` reports ONLINE with no errors; Secure Boot reported as enabled.
 
 ## Cost
 
 $300 plus tax for the two SSDs (November 2026, used, from a 99.7%-rated seller with 30-day returns).
-
