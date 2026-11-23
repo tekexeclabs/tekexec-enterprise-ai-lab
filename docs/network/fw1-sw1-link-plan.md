@@ -1,6 +1,6 @@
-# FW1 ↔ SW1 link plan (Week 7)
+# FW1 ↔ SW1 link plan
 
-Status: planned, not yet configured. Decided Day 7 (Sat Oct 31, 2026).
+Status: built. Decided Day 7 (Sat Oct 31, 2026); built Days 8-10. This page is the original plan; the as-built state is in [lab cabling](lab-cabling.md), [FW1 outside interface](fw1-outside.md) and [FW1 security policy](fw1-policy.md).
 Builds on: [IP plan v1](ip-plan.md), [SW1 hardening notes](sw1-hardening.md), [FW1 build log](../build/fw1.md)
 
 ## Picture
