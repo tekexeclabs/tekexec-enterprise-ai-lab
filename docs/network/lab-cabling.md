@@ -9,7 +9,7 @@ Verified Day 9 (Tue Nov 3, 2026); Gi0/5 added Day 12. Port numbers are the numbe
 | Cat6 | Gi0/3 | FW1 port 2 (ethernet1/2) | Trunk, 802.1q, native 999, allowed 10, 20, 30 | Carries all lab VLANs to the firewall | `show interfaces trunk`; FW1 ethernet1/2 up |
 | Cat6 | Gi0/4 | FW1 MGT (10.20.10.3) | Access, VLAN 10 | Firewall management | FW1 `show interface management`: up |
 | Cat6 (5 ft) | Gi0/5 | SRV1 iDRAC dedicated port (10.20.10.20) | Access, VLAN 10, portfast | Server out-of-band management | iDRAC ping, HTTPS and login (Day 12) |
-| None | Gi0/6-24 | Unused (Gi0/6 reserved for the SRV1 trunk, Week 12) | Access, VLAN 999, shut down | Locked by default | `show interfaces status`: disabled |
+| None | Gi0/6-24 | Unused (Gi0/6 reserved for the SRV1 trunk, at the Proxmox install) | Access, VLAN 999, shut down | Locked by default | `show interfaces status`: disabled |
 
 ## Firewall side (FW1, PA-220)
 
@@ -25,9 +25,9 @@ Verified Day 9 (Tue Nov 3, 2026); Gi0/5 added Day 12. Port numbers are the numbe
 
 One USB-to-RJ-45 console cable is shared. It connects to SW1's rear CONSOLE port or FW1's front RJ-45 CONSOLE port (the jack below MGT, not the micro-USB one), one device at a time. Both use 9600 baud, 8 data bits, no parity, 1 stop bit, no flow control.
 
-## Nothing connects to the home network
+## One cable to the home network
 
-No lab cable reaches the home router. FW1 ports 1 and 3-8 are empty.
+Since Day 10, exactly one lab cable reaches the home router: FW1 port 1 (ethernet1/1), described below. No other lab device connects to the home network. FW1 ports 3-8 are empty.
 
 ## Outside connection (added Day 10)
 
