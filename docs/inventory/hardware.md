@@ -24,12 +24,11 @@ Sysracks 9U wall-mount cabinet, 20" usable depth, 133 lb rating. The switch and 
 
 ## Security Note
 
-Every network device here is past or near its manufacturer's end of support. None of it will ever face the internet directly: the lab sits behind the firewall behind the ISP router
+Every network device here is past or near its manufacturer's end of support. None of it will ever face the internet directly: the lab sits behind the firewall, which sits behind the home router.
 
 ## Upcoming Tasks - Verify
 
 - [x] Actual CPU, memory and drive health, read from iDRAC (SRV1, Days 13-15)
-- [ ] Firmware and software versions on every device (SRV1 done Day 14)
-- [ ] PA-220 license status
+- [x] Firmware and software versions on every device (SW1 Day 3, FW1 Day 6, pi1 Day 5, SRV1 Day 14)
+- [x] PA-220 license status (none; Day 6)
 - [ ] Measured power draw of each device
-
