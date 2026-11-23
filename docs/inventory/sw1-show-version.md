@@ -1,7 +1,12 @@
-SW1 — show version (sanitized)
+# SW1: show version (sanitized)
 
-Device: SW1, Cisco Catalyst 2960G (lab switch) Captured: Oct 27, 2026, over the console port, from user EXEC mode (Switch>), read-only Sanitized: serial numbers, board IDs and MAC address replaced with [REDACTED]; Cisco's export-law boilerplate trimmed
+| Field | Value |
+| --- | --- |
+| Device | SW1, Cisco Catalyst 2960G (lab switch) |
+| Captured | Oct 27, 2026 (Day 3), over the console port, from user EXEC mode (`Switch>`), read-only |
+| Sanitized | Serial numbers, board IDs and MAC address replaced with [REDACTED]; Cisco's export-law boilerplate trimmed |
 
+```
 Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 15.0(2)SE10a, RELEASE SOFTWARE (fc3)
 Technical Support: http://www.cisco.com/techsupport
 Copyright (c) 1986-2016 by Cisco Systems, Inc.
@@ -43,12 +48,16 @@ Switch Ports Model              SW Version            SW Image
 *    1 24    WS-C2960G-24TC-L   15.0(2)SE10a          C2960-LANBASEK9-M
 
 Configuration register is 0xF
-What it tells us
-Field	Value	Meaning
-Model	WS-C2960G-24TC-L, Version ID V03	Matches the chassis label read on Day 1
-Software	IOS 15.0(2)SE10a, LAN Base, K9 (crypto)	K9 means SSH is available for secure management (plan Week 6)
-Latest available	15.0(2)SE11 (community-reported final release)	We stay on SE10a: downloads need a Cisco contract, and SW1 never faces the internet
-Memory	64 MB DRAM, 64 KB NVRAM	NVRAM holds the saved configuration (currently empty)
-Ports	24 Gigabit Ethernet + 1 virtual (Vlan1)	Vlan1 is the switch's own management interface
-Password recovery	Enabled	If we ever lock ourselves out, Cisco's recovery procedure still works
-Boot loader	12.2(44)SE5	The small program that starts IOS
+```
+
+## What it tells us
+
+| Field | Value | Meaning |
+| --- | --- | --- |
+| Model | WS-C2960G-24TC-L, Version ID V03 | Matches the chassis label read on Day 1 |
+| Software | IOS 15.0(2)SE10a, LAN Base, K9 (crypto) | K9 means SSH is available for secure management (in use since Day 5) |
+| Latest available | 15.0(2)SE11 (community-reported final release) | We stay on SE10a: downloads need a Cisco contract, and SW1 never faces the internet |
+| Memory | 64 MB DRAM, 64 KB NVRAM | NVRAM holds the saved configuration (empty at capture; first save on Day 4) |
+| Ports | 24 Gigabit Ethernet + 1 virtual (Vlan1) | Vlan1 is the switch's default management interface (shut down on Day 5; management moved to Vlan10) |
+| Password recovery | Enabled | If we ever lock ourselves out, Cisco's recovery procedure still works |
+| Boot loader | 12.2(44)SE5 | The small program that starts IOS |
