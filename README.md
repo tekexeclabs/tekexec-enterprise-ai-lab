@@ -4,7 +4,7 @@ A two-person build that turns retired enterprise hardware (Palo Alto PA-220, Cis
 
 ## Current Status
 
-**Day 17: server storage rebuilt from scratch. Next: Proxmox VE.**
+**Day 17: the previous owner's drives are sanitized and two enterprise SSDs have arrived. Next: swap the drives, prepare the storage controller and install Proxmox VE.**
 
 - Day 1: every device identified from its labels and checked against manufacturer support dates.
 - Day 2: fixed a server memory fault by reseating one DIMM.
@@ -32,7 +32,7 @@ Full record: [power-on log](docs/inventory/power-on-log.md).
 
 | Role | Device | Status |
 | --- | --- | --- |
-| Firewall and router between lab zones | Palo Alto PA-220 | 	Running: three lab zones plus an outside zone; first logged security rules and outbound NAT (Day 10) |
+| Firewall and router between lab zones | Palo Alto PA-220 | Running: three lab zones plus an outside zone; first logged security rules and outbound NAT (Day 10) |
 | Lab switch | Cisco Catalyst 2960G-24TC-L | Running: VLANs 10, 20, 30 and 999; trunk to the firewall; SSH-only management |
 | Virtualization server | Dell PowerEdge R730 (Proxmox VE next) | Hardware tested (memory, CPU, power); iDRAC hardened on the management VLAN; old drives sanitized; 2 x 960 GB enterprise SSDs received |
 | Monitoring / jump box | Raspberry Pi 4 | Running: jump box on MGMT; updates and time through the firewall only |
