@@ -125,4 +125,4 @@ Source for every row: 10.20.10.10 (pi1). Rows are written when a session ends. T
 
 - Only pi1 has outbound access. Hosts on PLATFORM and APPS get rules when they exist (the Proxmox VMs).
 - Traffic between lab zones is still handled by the built-in rules (allowed within a zone, denied between zones, not logged).
-- The lab is IPv4-only: FW1 routes no IPv6 traffic. To be decided with the lab DNS design.
+- The lab is IPv4-only: FW1 routes no IPv6 traffic. Decided in [ADR 0001](../decisions/0001-lab-dhcp-dns-time-ipv6.md) (Day 11).
