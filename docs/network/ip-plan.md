@@ -43,7 +43,7 @@ Status: **In use** = configured and verified on the device. **Planned** = reserv
 | 10.20.10.3 | fw1.lab.internal | FW1 MGT port | Infrastructure | In use (Day 8) |
 | 10.20.10.10 | pi1.lab.internal | pi1 (jump box, lab time source) | Infrastructure | In use (Day 4) |
 | 10.20.10.20 | srv1-idrac.lab.internal | SRV1 iDRAC8 (out-of-band management) | Infrastructure | In use (Day 12) |
-| 10.20.10.21 | srv1.lab.internal | SRV1 Proxmox VE host management | Infrastructure | Planned (Week 12) |
+| 10.20.10.21 | srv1.lab.internal | SRV1 Proxmox VE host management | Infrastructure | Planned (Proxmox install) |
 | 10.20.10.200 | (none) | Admin laptop, USB Ethernet adapter (no gateway, no DNS) | Admin | In use (Day 4) |
 
 ### VLAN 20: PLATFORM (10.20.20.0/24)
@@ -51,16 +51,16 @@ Status: **In use** = configured and verified on the device. **Planned** = reserv
 | Address | Name | Device | Range | Status |
 | --- | --- | --- | --- | --- |
 | 10.20.20.1 | (none) | FW1 ethernet1/2.20 (gateway) | Gateway | In use (Day 8) |
-| 10.20.20.10 | svc1.lab.internal | Lab service VM: DNS for `lab.internal`, DHCP for VLANs 20 and 30 | Infrastructure | Planned (Week 13) |
+| 10.20.20.10 | svc1.lab.internal | Lab service VM: DNS for `lab.internal`, DHCP for VLANs 20 and 30 | Infrastructure | Planned (after Proxmox) |
 | 10.20.20.50 | mon1.lab.internal | Monitoring and logging VM (Prometheus, Grafana, Loki) | Servers/VMs | Planned (Phase 2) |
-| 10.20.20.100–.199 | (dynamic) | DHCP pool | Pool | Planned (Week 13) |
+| 10.20.20.100–.199 | (dynamic) | DHCP pool | Pool | Planned (after Proxmox) |
 
 ### VLAN 30: APPS (10.20.30.0/24)
 
 | Address | Name | Device | Range | Status |
 | --- | --- | --- | --- | --- |
-| 10.20.30.1 | (none) | FW1 ethernet1/2.30 (gateway; DHCP relay to 10.20.20.10) | Gateway | In use (Day 8); relay planned (Week 13) |
-| 10.20.30.100–.199 | (dynamic) | DHCP pool, served by svc1 through FW1's relay | Pool | Planned (Week 13) |
+| 10.20.30.1 | (none) | FW1 ethernet1/2.30 (gateway; DHCP relay to 10.20.20.10) | Gateway | In use (Day 8); relay planned (with svc1) |
+| 10.20.30.100–.199 | (dynamic) | DHCP pool, served by svc1 through FW1's relay | Pool | Planned (with svc1) |
 
 Later platform and app addresses (database, AI gateway, the four applications) are assigned from .50–.99 when each is built, and added here first.
 
@@ -82,7 +82,7 @@ pi1 (`/etc/hosts`) and the admin laptop (`C:\Windows\System32\drivers\etc\hosts`
 10.20.10.10   pi1.lab.internal    pi1
 ```
 
-Added in Week 11 and 12 when configured:
+SRV1 entries, each added when configured (srv1-idrac on Day 12; srv1 at the Proxmox install):
 
 ```
 10.20.10.20   srv1-idrac.lab.internal    srv1-idrac
@@ -99,4 +99,3 @@ Every lab subnet (10.20.10.0/24, 10.20.20.0/24, 10.20.30.0/24) was checked again
 | --- | --- | --- |
 | v1 | Day 4, Oct 28, 2026 | VLANs 10, 20, 30 and 999; gateways at .1 on FW1; first monitoring VM proposed at 10.20.20.10 |
 | v2 | Day 12, Nov 9, 2026 | Ranges aligned with ADR 0001. Monitoring VM moved from .10 to **10.20.20.50** (.10 is in the infrastructure range and now belongs to the service VM, svc1). SRV1 iDRAC (10.20.10.20) and Proxmox host (10.20.10.21) reserved. Names added for every address |
-
