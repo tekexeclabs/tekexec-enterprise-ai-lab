@@ -22,7 +22,7 @@ Private details (Service Tag, serial numbers, MAC addresses, home network addres
 | SRV1 | Reseated DIMM_A1 (Samsung 32 GB DDR4-2400 RDIMM) | Contacts clean; ejectors locked | Done |
 | SRV1 | Verification boot to System Setup | No memory error; 128 GB usable; front LCD blue | **PASS: fault cleared** |
 
-Note: one verification boot missed the F2 prompt and reached the previous owner's operating system login screen. It was not logged into, no network was connected, and it was shut down cleanly. The drives are wiped in Week 11.
+Note: one verification boot missed the F2 prompt and reached the previous owner's operating system login screen. It was not logged into, no network was connected, and it was shut down cleanly. The drives were sanitized on Days 16-17.
 
 ## Day 3: Tue Oct 27, 2026 (evening)
 
@@ -220,9 +220,9 @@ Note: home network addresses, FW1's outside address and usernames are kept in pr
 | FW1 | `check pending-changes` (configure mode) | no | PASS: draft matches live config |
 | FW1 | Web UI: listed saved configuration snapshots (Cancel) | day10-after.xml present | PASS: FW1 unchanged |
 | FW1 | Read-only interface check, ethernet1/1 and ethernet1/2 | No IPv6 on any interface; subinterfaces .10/.20/.30 match the IP plan; ping allowed only on .10 | PASS |
-| FW1 | Web UI: DHCP Relay (Add, Cancel) | ethernet1/2.30 offered as a relay interface | PASS: relay available for Week 13 |
+| FW1 | Web UI: DHCP Relay (Add, Cancel) | ethernet1/2.30 offered as a relay interface | PASS: relay available for svc1 |
 | PI1 | `timedatectl status`, `ip -6 addr show eth0`, `apt-cache policy chrony` | Clock synced; link-local IPv6 only; chrony not installed yet | PASS |
-| SW1 | `show clock detail` | Clock at its 1993 default, no time source | Finding: needs pi1 as time source (Week 12) |
+| SW1 | `show clock detail` | Clock at its 1993 default, no time source | Finding: needs pi1 as time source |
 | SRV1 | Read-only System Setup (F2) | BIOS 2.19.0, legacy BIOS boot; one RAID 1 virtual disk "Degraded"; drive in bay 1 "Failed" | Recorded; nothing changed |
 | SRV1 iDRAC | Factory reset, static address 10.20.10.20, new administrator password | Reset completed; address set from the server's own setup screen | PASS |
 | SW1 | Safety copy, then Gi0/5 moved from locked VLAN 999 to VLAN 10 | Port connected at 1 Gbps | PASS |
@@ -279,7 +279,7 @@ Note: home network addresses, FW1's outside address and usernames are kept in pr
 
 | Device | Action | Observed | Result |
 | --- | --- | --- | --- |
-| SRV1 | Lid off with power fully cut; located the 100 GB SSD | Inside the slim optical bay at the front left, wired to the motherboard, not the storage controller | PASS |
+| SRV1 | Lid off with power fully cut; looked for the 100 GB SSD | A slim optical-bay box at the front left, cabled to the motherboard, not the storage controller; the SSD is very likely inside (the drive itself was not seen; BIOS lists it on motherboard SATA) | Likely located |
 | SRV1 iDRAC | Read the System Event Log (nothing cleared) | Day 14 amber front-panel message = the drive-removed event from the swap test | PASS |
 | SRV1 | Started Dell hardware diagnostics | "Unable to find diagnostics application": removed by a previous owner's system erase (likely) | Blocked |
 | SRV1 iDRAC | Reinstalled Dell hardware diagnostics; SHA-256 checked against Dell's published value before upload | Install job completed | PASS |
@@ -305,4 +305,5 @@ Note: home network addresses, FW1's outside address and usernames are kept in pr
 | SRV1 | Booted SystemRescue through iDRAC virtual media (no USB stick) | Booted after choosing the virtual CD in the boot menu (F11) | PASS: rehearsal for the Proxmox install |
 | SRV1 | Checked the SSD's built-in erase options | Sanitize not supported; Security Erase blocked ("frozen" by the server at startup) | Purge not possible |
 | SRV1 | Zero-overwrite of the whole 100 GB SSD, then full read-back | Every byte reads zero, to the last byte | Clear done; SSD queued for certified destruction |
+
 Sanitization summary: [media-sanitization.md](media-sanitization.md).
