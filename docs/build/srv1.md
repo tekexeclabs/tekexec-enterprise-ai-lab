@@ -16,7 +16,7 @@ Desk beside the rack, rated well above the server's maximum weight (about 69 lb)
 | Serial (9-pin) | Teal background | Not used |
 | VGA | Blue background | Local monitor during setup |
 | USB 3.0 (2) | Right of VGA | Keyboard; installer stick |
-| Ethernet 1-4 | Bottom middle, labeled 1-4 | Port 1: trunk to SW1 Gi0/6 (Week 12); ports 2-4 unused |
+| Ethernet 1-4 | Bottom middle, labeled 1-4 | Port 1: trunk to SW1 Gi0/6 (at the Proxmox install); ports 2-4 unused |
 | PCIe slots 1-7 | Top row (riser 1: 1-3, riser 2: 4-5, riser 3: 6-7) | Empty |
 | PSU 1 and 2 | Bottom right, 750 W each | Redundant power |
 
@@ -45,7 +45,7 @@ Desk beside the rack, rated well above the server's maximum weight (about 69 lb)
 Laptop (10.20.10.200) -> SW1 Gi0/1 -> VLAN 10 -> SW1 Gi0/5 -> SRV1 iDRAC (10.20.10.20, `srv1-idrac.lab.internal`).
 Same VLAN, so FW1 is not in this path.
 
-Hardening (Day 14):
+Hardening (Days 12 and 14):
 - Two named administrator accounts; the default root account disabled.
 - Only HTTPS (TLS 1.2) and Redfish enabled; SSH, remote RACADM, SNMP and IPMI over LAN off; IPv6 off.
 - Host header check kept on (the iDRAC answers only to its own name).
@@ -56,13 +56,6 @@ Support status: iDRAC8 reached end of software maintenance in February 2024; 2.8
 
 Design: [ADR 0002](../decisions/0002-srv1-storage-and-boot.md). Two Intel D3-S4510 960 GB enterprise SSDs in bays 0 and 1, the PERC in HBA mode, a ZFS mirror in Proxmox, UEFI with Secure Boot.
 
-Old drives: sanitized and queued for certified destruction. See [media sanitization](../inventory/media-sanitization.md).
+Old drives: two cleared (the bay 0 HDD and the 100 GB SSD); the failing bay 2 HDD could not be read by the controller, so it could not be cleared. All three are held securely for certified destruction at the end of the build. See [media sanitization](../inventory/media-sanitization.md).
 
-Lesson (Days 14-16): we first blamed slot 1 for a missing drive. The same drive later failed in another slot, and a known-good drive worked in slot 1. Test a suspect slot with a part you trust, and change one thing at a time.
-
-## Next
-
-- Remove the three old drives (bays 0 and 2, and the slim optical bay); certified destruction.
-- PERC to HBA mode; BIOS to UEFI; network boot removed.
-- Install the new SSDs in bays 0 and 1; check their health (SMART) and update their firmware to the vendor's latest.
-- Install Proxmox VE (10.20.10.21) via iDRAC virtual media (rehearsed Day 17).
+Lesson (Days 14-16): we first blamed slot 1 for a missing drive. The same drive later failed in another slot, and a known-good drive worked in slot 1. Test a suspect slot with a part you trust, and change
