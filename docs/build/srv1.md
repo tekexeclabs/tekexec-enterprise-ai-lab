@@ -58,4 +58,11 @@ Design: [ADR 0002](../decisions/0002-srv1-storage-and-boot.md). Two Intel D3-S45
 
 Old drives: two cleared (the bay 0 HDD and the 100 GB SSD); the failing bay 2 HDD could not be read by the controller, so it could not be cleared. All three are held securely for certified destruction at the end of the build. See [media sanitization](../inventory/media-sanitization.md).
 
-Lesson (Days 14-16): we first blamed slot 1 for a missing drive. The same drive later failed in another slot, and a known-good drive worked in slot 1. Test a suspect slot with a part you trust, and change
+Lesson (Days 14-16): we first blamed slot 1 for a missing drive. The same drive later failed in another slot, and a known-good drive worked in slot 1. Test a suspect slot with a part you trust, and change one thing at a time.
+
+## Next
+
+- Remove the three old drives (bays 0 and 2, and the slim optical bay) and store them securely; certified destruction of all retired media together at the end of the build.
+- PERC to HBA mode; BIOS to UEFI; network boot removed.
+- Install the new SSDs in bays 0 and 1; check their health (SMART) and update their firmware to the vendor's latest.
+- Install Proxmox VE (10.20.10.21) via iDRAC virtual media (rehearsed Day 17).
