@@ -13,7 +13,7 @@ The lab is never reachable from the internet. There is no inbound NAT, no port f
 
 ## Context
 
-Today the lab has four hand-configured devices on VLAN 10: SW1 (10.20.10.2), FW1 MGT (10.20.10.3), pi1 (10.20.10.10) and the admin laptop (10.20.10.200). FW1 is the gateway for every VLAN (10.20.10.1, 10.20.20.1, 10.20.30.1). Starting around Week 11–12, a Dell PowerEdge R730 (SRV1) running Proxmox will add virtual machines to VLANs 20 and 30. Before that happens, we need to decide:
+Today the lab has four hand-configured devices on VLAN 10: SW1 (10.20.10.2), FW1 MGT (10.20.10.3), pi1 (10.20.10.10) and the admin laptop (10.20.10.200). FW1 is the gateway for every VLAN (10.20.10.1, 10.20.20.1, 10.20.30.1). Next, a Dell PowerEdge R730 (SRV1) running Proxmox will add virtual machines to VLANs 20 and 30. Before that happens, we need to decide:
 
 1. Who hands out addresses (DHCP).
 2. Who answers name lookups (DNS).
@@ -92,9 +92,9 @@ A central DHCP/DNS server with relay is the common enterprise pattern. It keeps 
 | sw1.lab.internal | 10.20.10.2 | In use |
 | fw1.lab.internal | 10.20.10.3 (MGT) | In use |
 | pi1.lab.internal | 10.20.10.10 | In use |
-| srv1-idrac.lab.internal | 10.20.10.20 | Planned (Week 11) |
-| srv1.lab.internal | 10.20.10.21 | Planned (Week 12) |
-| svc1.lab.internal | 10.20.20.10 | Planned (Week 13) |
+| srv1-idrac.lab.internal | 10.20.10.20 | In use (Day 12) |
+| srv1.lab.internal | 10.20.10.21 | Planned (Proxmox install) |
+| svc1.lab.internal | 10.20.20.10 | Planned (after Proxmox) |
 | mon1.lab.internal | 10.20.20.50 | Planned (Phase 2) |
 
 **Why**
@@ -108,7 +108,7 @@ A central DHCP/DNS server with relay is the common enterprise pattern. It keeps 
 
 - FW1 will need logged rules for VLANs 10 and 30 to reach svc1 on VLAN 20.
 - svc1 needs one outbound rule to the internet, for the DNS application only. This is outbound only and does not make the lab reachable.
-- The server software is chosen at Week 13 (ADR 0003). Candidates: Windows Server DNS/DHCP, or Linux tools such as BIND or Unbound with ISC Kea.
+- The server software is chosen when svc1 is built (ADR 0003). Candidates: Windows Server DNS/DHCP, or Linux tools such as BIND or Unbound with ISC Kea.
 
 ## Decision 3: Time (NTP)
 
@@ -160,11 +160,11 @@ Must check on device that FW1 does not forward IPv6 and that pi1 holds only link
 - [x] pi1 time: synchronized, NTP service active, time zone America/New_York, no real-time clock. `chrony` not installed; available from Debian (4.6.1-3+deb13u2).
 - [x] pi1 IPv6: link-local address only (fe80::…, scope link); no global IPv6.
 - [x] FW1 IPv6: no IPv6 configuration on ethernet1/1 or ethernet1/2 and its subinterfaces.
-- [x] FW1 DHCP relay: available on ethernet1/2.30 (listed in Network > DHCP > DHCP Relay). Working relay to be proven in Week 13.
+- [x] FW1 DHCP relay: available on ethernet1/2.30 (listed in Network > DHCP > DHCP Relay). Working relay to be proven when svc1 is built.
 
 ## Revisit when
 
-- svc1 is built (Week 13). Choose the DHCP/DNS software (ADR 0003) and write the new FW1 rules.
+- svc1 is built. Choose the DHCP/DNS software (ADR 0003) and write the new FW1 rules.
 - VLAN 20 or 30 hosts need time.
 - A lab learning goal requires IPv6 internally. Internet reachability is never a reason to revisit.
 
