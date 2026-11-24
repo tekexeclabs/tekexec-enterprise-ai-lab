@@ -1,6 +1,6 @@
 # SRV1 build log: Dell PowerEdge R730
 
-Role: virtualization host (Proxmox VE planned, Week 12)
+Role: virtualization host (Proxmox VE planned)
 Status (Day 17): hardware verified and tested; iDRAC hardened and in use; old drives sanitized; new SSDs received; no operating system yet (Proxmox VE next)
 
 ## Placement
@@ -62,7 +62,7 @@ Lesson (Days 14-16): we first blamed slot 1 for a missing drive. The same drive 
 
 ## Next
 
-- Remove the old drives; certified destruction.
-- Update the new SSDs' firmware; install them in bays 0 and 1.
+- Remove the three old drives (bays 0 and 2, and the slim optical bay); certified destruction.
 - PERC to HBA mode; BIOS to UEFI; network boot removed.
+- Install the new SSDs in bays 0 and 1; check their health (SMART) and update their firmware to the vendor's latest.
 - Install Proxmox VE (10.20.10.21) via iDRAC virtual media (rehearsed Day 17).
