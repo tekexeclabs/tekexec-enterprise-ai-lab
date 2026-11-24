@@ -3,18 +3,20 @@
 Role: jump box in the MGMT zone (VLAN 10), the controlled entry point for administering the lab
 Built: Day 4 (Wed Oct 28, 2026)
 
-Result
-Item	Value
-OS	Raspberry Pi OS Lite (64-bit): Debian GNU/Linux 13.7 (trixie), kernel 6.18.50, aarch64
-Hostname	pi1
-Address	10.20.10.10/24 on eth0, static
-Default gateway	10.20.10.1 (FW1, MGMT zone), added Day 10
-DNS	1.1.1.1 and 9.9.9.9 (public resolvers; never the home router)
-Time	systemd-timesyncd, through FW1; time zone America/New_York
-Wi-Fi	Not configured; wlan0 is down with no address
-Remote access	SSH with a key and passphrase
-Connected to	SW1 port Gi0/2, access VLAN 10 (MGMT)
-Internet access	Only through FW1 rule allow-pi1-updates: dns, ntp, ping, web-browsing, ssl, apt-get
+## Result
+
+| Item | Value |
+| --- | --- |
+| OS | Raspberry Pi OS Lite (64-bit): Debian GNU/Linux 13.7 (trixie), kernel 6.18.50, aarch64 |
+| Hostname | pi1 |
+| Address | 10.20.10.10/24 on eth0, static |
+| Default gateway | 10.20.10.1 (FW1, MGMT zone), added Day 10 |
+| DNS | 1.1.1.1 and 9.9.9.9 (public resolvers; never the home router) |
+| Time | systemd-timesyncd, through FW1; time zone America/New_York |
+| Wi-Fi | Not configured; wlan0 is down with no address |
+| Remote access | SSH with a key and passphrase |
+| Connected to | SW1 port Gi0/2, access VLAN 10 (MGMT) |
+| Internet access | Only through FW1 rule allow-pi1-updates: dns, ntp, ping, web-browsing, ssl, apt-get |
 
 The Pi has never been on the home network. Since Day 10 it reaches the internet only through FW1, only for six named applications, and FW1 blocks and logs any attempt to reach a home device.
 
@@ -62,6 +64,7 @@ The Pi has never been on the home network. Since Day 10 it reaches the internet 
 
 - On first boot, the Pi's activity LED stayed dark until the microSD card was reseated firmly.
 - Windows `ssh` couldn't resolve `pi1.local` even when `ping` could. Using the address directly avoids the problem.
+
 ## Day 5 correction: the Day 4 image was the desktop version
 
 A read-only check on Day 5 showed the Day 4 card held the full desktop Raspberry Pi OS, not Lite: `systemctl get-default` returned `graphical.target`, and the `lightdm` package (a graphical login screen) was installed with 19 services running. The likely cause is that Imager's top OS choice is the desktop version; Lite is under "Raspberry Pi OS (other)".
@@ -116,38 +119,44 @@ SW1's 2016-era IOS only offers old SSH algorithms that modern OpenSSH turns off 
 
 From pi1, `ssh sw1` reaches the switch. Every other SSH connection keeps the modern defaults.
 
-Day 10 changes
+## Day 10 changes
 
 Default gateway and DNS (on pi1):
 
+```
 nmcli connection show
 sudo nmcli connection modify "netplan-eth0" ipv4.gateway 10.20.10.1 ipv4.dns "1.1.1.1 9.9.9.9"
 sudo nmcli device reapply eth0
 ip route
 cat /etc/resolv.conf
+```
 
-The connection is named netplan-eth0, not the cloud-init eth0 we expected: netplan sits underneath NetworkManager on this image. Always read the name from nmcli connection show first.
+The connection is named `netplan-eth0`, not the cloud-init `eth0` we expected: netplan sits underneath NetworkManager on this image. Always read the name from `nmcli connection show` first.
 
 Keep cloud-init from rewriting the network settings:
 
+```
 echo 'network: {config: disabled}' | sudo tee /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+```
 
 Time zone:
 
+```
 sudo timedatectl set-timezone America/New_York
 timedatectl
+```
 
-Result: System clock synchronized: yes. NTP began working within seconds of FW1's rule being committed.
+Result: `System clock synchronized: yes`. NTP began working within seconds of FW1's rule being committed.
 
-Package list: sudo apt update fetched 1.9 MB; 35 packages are upgradable (not yet installed).
+Package list: `sudo apt update` fetched 1.9 MB; 35 packages were upgradable (not installed that day).
 
-Lessons
+### Lessons
 
-A one-letter typo (ivp4 for ipv4) made nmcli reject the whole line. Nothing changed, so we just retyped it.
-getent hosts deb.debian.org returned only IPv6 answers, but apt and curl worked over IPv4. The lab is IPv4-only, and programs fall back to IPv4.
+- A one-letter typo (`ivp4` for `ipv4`) made nmcli reject the whole line. Nothing changed, so we just retyped it.
+- `getent hosts deb.debian.org` returned only IPv6 answers, but apt and curl worked over IPv4. The lab is IPv4-only, and programs fall back to IPv4.
 
 ## Next
 
-Confirm the default gateway survives a reboot (sudo reboot, then ip route)
-Install the 35 pending updates in their own short session
-Lab time source decision: whether pi1 becomes the clock for SW1 and FW1
+- Confirm the default gateway survives a reboot (`sudo reboot`, then `ip route`).
+- Install the pending updates in their own short session.
+- Install `chrony` so pi1 can serve time to SW1, FW1 and SRV1 (decided in [ADR 0001](../decisions/0001-lab-dhcp-dns-time-ipv6.md), Day 11).
